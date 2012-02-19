@@ -34,7 +34,7 @@ import Data.Colour.Names (black, white)
 import Data.Either (partitionEithers)
 import Data.Label
 import Data.List (partition, findIndices, sortBy, sort, delete, group, (\\))
-import Data.Maybe (catMaybes, mapMaybe)
+import Data.Maybe (catMaybes, mapMaybe, listToMaybe)
 import Data.Ord (comparing)
 
 import Debug.Trace (trace)
@@ -71,6 +71,9 @@ class Mark a where
   mergeMark :: a -> a -> Maybe a
   mergeMark _ _ = Nothing
 
+  splitMark :: Int -> a -> (Maybe a, Maybe a)
+  splitMark _ x = (Just x, Just x)
+
 monoStyle :: StyleParam
 monoStyle = font "monospace" . fontSize 18
 
@@ -80,11 +83,14 @@ emptyText = MarkedText "" []
 plainText :: String -> MarkedText m
 plainText t  = MarkedText t []
 
+
+--TODO: use splitMark
+
 -- | Extract an interval of the text.  First parameter is True if inclusive.
 substrText :: Bool -> MarkedText m -> Ivl -> MarkedText m
 substrText inc (MarkedText str ms) ivl@(f, t)
   = MarkedText (take count $ drop f' str)
-  . catMaybes $ map (firstA $ local) ms
+  . catMaybes $ map (firstA local) ms
  where
   f' = max 0 f
   count = t - f'
@@ -249,6 +255,14 @@ clipMarks mt = modify mMarks (uncurry performMerges . partitionEithers . map pro
 
 clearMarks :: MarkedText m -> MarkedText m
 clearMarks (MarkedText t _) = MarkedText t []
+
+getMarks :: ((Ivl, m) -> Bool) -> MarkedText m -> [(Ivl, m)]
+getMarks f = filter f . get mMarks
+
+smallestEnclosing :: (m -> Bool) -> Ivl -> MarkedText m -> Maybe (Ivl, m)
+smallestEnclosing f ivl = listToMaybe
+                        . sortBy (comparing $ uncurry subtract . fst)
+                        . getMarks (\(i, m) -> ivlContainsIvl i ivl && f m)
 
 -- Builtin Marks
 
