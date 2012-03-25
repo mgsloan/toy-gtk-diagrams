@@ -44,6 +44,7 @@ import Data.Maybe (isJust)
 import Diagrams.Backend.Cairo
 import Diagrams.Prelude
 import Diagrams.TwoD.Text
+import Graphics.Rendering.Diagrams.Points
 
 -- | Draggable things are translatable, and store state during the drag
 --   process.
@@ -85,9 +86,9 @@ mkDraggable :: V a -> a -> Draggable a
 mkDraggable = Draggable Nothing
 
 -- | Pure mouse handler, compatible with the type expected by "simpleMouse".
-mouseDrag (Just (True,  0)) p d | clickInside d (P p) = startDrag p d
-mouseDrag Nothing           p d                       = updateDrag p d
-mouseDrag (Just (False, 0)) p d                       = endDrag d
+mouseDrag (Just (True,  0)) p d | clickInside d (P $ pack p) = startDrag (pack p) d
+mouseDrag Nothing           p d                              = updateDrag (pack p) d
+mouseDrag (Just (False, 0)) p d                              = endDrag d
 mouseDrag _ _ d = d
 
 -- | Switches into dragging mode at the given position.

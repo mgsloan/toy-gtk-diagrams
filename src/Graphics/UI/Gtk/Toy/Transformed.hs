@@ -61,9 +61,11 @@ mkTransformed = Transformed . (:[]) . (mempty, )
 type instance V (Transformed a) = V a
 
 type instance V InputState = R2
+
 instance Transformable InputState where
 --  transform t is = is { mousePos = trace (show $ transl $ inv t) $ debug $ transform t $ mousePos is }
-  transform t is = is { mousePos = under P (transform $ inv t) $ mousePos is }
+  transform t is = is { mousePos = unpack . under P (transform $ inv t) . pack
+                                 $ mousePos is }
 
 instance HasLinearMap (V a) => HasOrigin     (Transformed a) where
   moveOriginTo p = translate (origin .-. p)

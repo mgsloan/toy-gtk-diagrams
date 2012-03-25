@@ -2,10 +2,10 @@
 
 import Graphics.UI.Gtk.Toy.Prelude
 
-import Physics.ForceLayout
-
 import Data.Label
 import qualified Data.Map as M
+import Graphics.Rendering.Diagrams.Points (Point(..))
+import Physics.ForceLayout
 
 data State = State (Ensemble R2) (M.Map PID (Draggable CairoDiagram))
 
@@ -36,19 +36,19 @@ updateHandles (State e hm)
     | isDragging d = d
     | otherwise    = set dragOffset p d
 
-main = runToy 
+main = runToy
      $ State e
      $ M.fromList $ [(k, mkDraggable p $ circle 5) | (k, get pos -> P p) 
-                     <- M.toList particleMap]
+                    <- M.toList particleMap]
  where
   e = Ensemble [ (edges,    hookeForce 1 4)
                , (allPairs, coulombForce 1)
                ]
                particleMap
-  edges       = [(1,2), (2,3), (2,5), (3,5), (3,4), (4,5)]
-  allPairs    = [(x,y) | x <- [1..4], y <- [x+1..5]]
+  edges       = [(1, 2), (2, 3), (2, 5), (3, 5), (3, 4), (4, 5)]
+  allPairs    = [(x, y) | x <- [1..4], y <- [x + 1..5]]
   particleMap = M.fromList . zip [1..]
-              . map (initParticle . P)
+              . map (initParticle . p2)
               $ [ (102.0, 103.1), (106.3, 107.2)
                 , (100.3, 104.2), (101.6, 99.1)
                 , (104.8, 102.9)

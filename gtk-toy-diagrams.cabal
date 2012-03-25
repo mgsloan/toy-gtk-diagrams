@@ -23,8 +23,10 @@ Library
                      fclabels,
                      gtk,
                      gtk-toy,
+                     MemoTrie,
                      newtype,
-                     newtype-th >= 0.3
+                     newtype-th >= 0.3,
+                     vector-space
   Hs-source-dirs:    src
   Exposed-Modules:
     Graphics.UI.Gtk.Toy.Diagrams
@@ -44,6 +46,7 @@ executable text
                      colour,
                      diagrams-lib,
                      diagrams-cairo,
+                     diagrams-core,
                      diagrams-contrib,
                      fclabels,
                      gtk-toy,
@@ -58,6 +61,7 @@ executable handles
                      colour,
                      diagrams-lib,
                      diagrams-cairo,
+                     diagrams-core,
                      diagrams-contrib,
                      fclabels,
                      gtk,
@@ -73,6 +77,7 @@ executable wrap
                      colour,
                      diagrams-lib,
                      diagrams-cairo,
+                     diagrams-core,
                      diagrams-contrib,
                      fclabels,
                      gtk-toy,
@@ -87,6 +92,7 @@ executable forceLayout
                      colour,
                      diagrams-lib,
                      diagrams-cairo,
+                     diagrams-core,
                      diagrams-contrib,
                      fclabels,
                      force-layout,
@@ -102,6 +108,7 @@ executable transformed
                      colour,
                      diagrams-lib,
                      diagrams-cairo,
+                     diagrams-core,
                      diagrams-contrib,
                      fclabels,
                      force-layout,

@@ -29,6 +29,7 @@ import Diagrams.Backend.Cairo.Text (StyleParam, textLineBounded)
 import Control.Arrow (first, second, (***), (&&&))
 import Control.Applicative ((<$>))
 import Control.Monad (msum)
+import Control.Newtype (Newtype(..))
 
 import Data.Colour.Names (black, white)
 import Data.Either (partitionEithers)
@@ -287,10 +288,10 @@ instance Mark CursorMark where
   drawStateStyle _ (StyleState s) = s
   drawMark m (StyleState s) mt@(MarkedText txt _)
     | null txt = lineWidth 1 . lineColor black
-               . moveOriginBy (-1.5, 2)
+               . moveOriginBy (pack (-1.5, 2.0))
                . setEnvelope mempty
                . stroke . pathFromTrail
-               $ Trail [Linear (0, 18)] False
+               $ Trail [Linear $ pack (0, 18)] False
     | otherwise = highlight black $ drawRec (StyleState $ s . fc white) mt 
   mergeMark _ _ = Just CursorMark
 

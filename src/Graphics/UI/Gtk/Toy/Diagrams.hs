@@ -1,4 +1,5 @@
-{-# LANGUAGE ExistentialQuantification
+{-# LANGUAGE ConstraintKinds
+           , ExistentialQuantification
            , FlexibleInstances
            , FlexibleContexts 
            , GeneralizedNewtypeDeriving
@@ -46,6 +47,7 @@ import qualified Data.Traversable as T
 import qualified Graphics.UI.Gtk as G
 
 type CairoDiagram = Diagram Cairo R2
+type CairoDiagrammable a = Diagrammable a Cairo R2
 
 class Diagrammable a b v where
   toDiagram :: a -> Diagram b v
@@ -73,8 +75,10 @@ type instance V (TDia a)   = V a
 deriving instance ( InnerSpace (V a), HasLinearMap (V a), OrderedField (Scalar (V a))
                   , Enveloped a)
                  => Enveloped     (TDia a)
+
 deriving instance ( Transformable a, HasLinearMap (V a))
                  => Transformable (TDia a)
+
 deriving instance ( HasOrigin a, VectorSpace (V a) )
                  => HasOrigin     (TDia a)
 
