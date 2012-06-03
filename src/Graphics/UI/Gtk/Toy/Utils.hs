@@ -11,7 +11,7 @@ import Data.Label
 import Data.Basis (Basis)
 import Debug.Trace (trace)
 import Diagrams.BoundingBox (boundingBox, boxExtents, getCorners, boxFit)
-import Diagrams.Prelude
+import Diagrams.Prelude hiding (trace)
 
 -- * Diagrams Utils
 

@@ -21,7 +21,7 @@
 module Graphics.UI.Gtk.Toy.Text where
 
 
-import Diagrams.Prelude
+import Diagrams.Prelude hiding ( trace )
 import Diagrams.TwoD.Text
 import Diagrams.Backend.Cairo ( Cairo )
 import Diagrams.Backend.Cairo.Text ( textLineBounded )
