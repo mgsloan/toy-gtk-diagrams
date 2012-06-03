@@ -6,7 +6,7 @@
   #-}
 module Graphics.UI.Gtk.Toy.Utils where
 
-import Control.Newtype (overF)
+import Control.Newtype (Newtype, overF)
 import Data.Label
 import Data.Basis (Basis)
 import Debug.Trace (trace)
@@ -51,7 +51,8 @@ highlight c d = underlayScaled d . fc c $ square 1
 
 
 -- * Normal Utils
-
+overM :: (Monad m, Functor m, Newtype n' o', Newtype n o)
+      => (o -> n) -> (o -> m o') -> n -> m n'
 overM x f = (x `overF` (>>= f)) . return
 
 modifyM :: Monad m => (b :-> a) -> (a -> m a) -> b -> m b
