@@ -52,11 +52,13 @@ type CairoSlider a = Slider Cairo R2 a
 $(mkLabels [''Slider])
 
 --TODO: broken
-sliderHandle :: (OrderedField (Scalar v), AdditiveGroup v)
+sliderHandle :: (OrderedField (Scalar v), AdditiveGroup v, InnerSpace v)
              => Lens (->) (Slider b v a) (Draggable b (Diagram b v))
-sliderHandle = lens (get sliderHandle')
-  $ \x s -> set (dragOffset . sliderHandle') (get sliderPos s)
-          $ set sliderHandle' x s
+sliderHandle = lens (get sliderHandle') setter
+ where
+  setter x s
+    = let s' = set sliderHandle' x s 
+       in modify sliderValue id s'
 
 sliderValue :: forall b v a. (InnerSpace v, OrderedField (Scalar v))
             => Slider b v a :-> a
@@ -68,7 +70,7 @@ sliderValue = lens (\  s -> get (metric s) s)
 
 sliderPos :: (AdditiveGroup v, OrderedField (Scalar v))
           => Slider b v a :-> v
-sliderPos = dragOffset . sliderHandle
+sliderPos = dragOffset . sliderHandle'
 
 roundtripUnder :: (a :-> b) -> a -> b -> b
 roundtripUnder l s v = get l $ set l v s
@@ -95,12 +97,12 @@ instance Interactive (Slider b R2 a) where
 -- TODO: make vectorspace independent (requires polymorphic stroke)
 instance Diagrammable Cairo (CairoSlider a) where
   diagram s = stroke (fromOffsets [get sliderLine s])
-             <> diagram (get sliderHandle s)
+           <> diagram (get sliderHandle' s)
 
 instance ( InnerSpace v, HasLinearMap v, OrderedField (Scalar v) )
       => Enveloped (Slider b v a) where
   getEnvelope s = getEnvelope [origin, P $ get sliderLine s]
-               <> getEnvelope (get sliderHandle s)
+               <> getEnvelope (get sliderHandle' s)
 
 mkSlider :: (AdditiveGroup v, Fractional (Scalar v))
          => (Scalar v, Scalar v) -> Diagram b v -> v -> Slider b v (Scalar v)

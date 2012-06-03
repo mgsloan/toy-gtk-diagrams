@@ -89,7 +89,7 @@ instance GtkInteractive State where
 update :: State -> State
 update (State e hm conf) 
   = State ( modify particles (M.intersectionWith constrain hm)
-          $ ensembleStep 0.1 e) --(get (sliderValue . dampingSlider) conf) e )
+          $ ensembleStep (get (sliderValue . dampingSlider) conf) e )
           ( M.intersectionWith update hm (get particles e) )
           ( conf )
  where
