@@ -26,8 +26,18 @@
 --
 -----------------------------------------------------------------------------
 module Graphics.UI.Gtk.Toy.Diagrams
-  ( Diagrammable(..), Clickable(..)
-  , CairoDiagram, TToy(..), TDia(..)
+  ( 
+  -- * CairoDiagram type alias
+    CairoDiagram
+
+  -- * Diagrammable class
+  , Diagrammable(..)
+  , CairoDiagrammable
+  , Clickable(..)
+  
+  -- * Traversable Default Wrappers
+  , TToy(..), TDia(..)
+
   , displayDiagram
   ) where
 
@@ -47,13 +57,14 @@ import qualified Data.Traversable as T
 import qualified Graphics.UI.Gtk as G
 
 type CairoDiagram = Diagram Cairo R2
-type CairoDiagrammable a = Diagrammable a Cairo R2
 
-class Diagrammable a b v where
-  toDiagram :: a -> Diagram b v
+class Diagrammable b a where
+  diagram :: a -> Diagram b (V a)
 
-instance Diagrammable (Diagram b v) b v where
-  toDiagram = id
+type CairoDiagrammable = Diagrammable Cairo
+
+instance Diagrammable b (Diagram b v) where
+  diagram = id
 
 -- | Clickable things have some concept of which positions are clickable.
 class Clickable a where
@@ -61,6 +72,9 @@ class Clickable a where
 
 instance HasLinearMap v => Clickable (Diagram b v) where
   clickInside d = getAny . runQuery (query d)
+
+--TODO: rather than newtypes, consider having a few "Prototype" wrappers?
+-- could be the appropriate response to newtype-anti-pattern.
 
 -- | Wrapper for making traversable things interactive.
 newtype TToy t a = TToy (t a)
@@ -82,8 +96,8 @@ deriving instance ( Transformable a, HasLinearMap (V a))
 deriving instance ( HasOrigin a, VectorSpace (V a) )
                  => HasOrigin     (TDia a)
 
-instance Diagrammable a b v => Diagrammable (TDia a) b v where
-  toDiagram = toDiagram . unpack
+instance Diagrammable b a => Diagrammable b (TDia a) where
+  diagram = diagram . unpack
 
 $(mkNewTypes [''TToy, ''TDia])
 
@@ -95,10 +109,10 @@ displayDiagram f dw _ x = (renderToGtk dw $ f x) >> return x
 
 -- Traversable Toy instances
 
-instance ( T.Traversable t, Diagrammable a b v
+instance ( T.Traversable t, Diagrammable b a
          , v ~ V a, HasLinearMap v, InnerSpace v, OrderedField (Scalar v) )
-      => Diagrammable (TToy t a) b v where
-  toDiagram = T.foldMapDefault toDiagram . unpack
+      => Diagrammable b (TToy t a) where
+  diagram = T.foldMapDefault diagram . unpack
 
 instance ( T.Traversable t, Interactive a )
       => Interactive (TToy t a) where
@@ -108,18 +122,18 @@ instance ( T.Traversable t, Interactive a )
   mouse    m i =  TToy `overM` T.traverse (mouse m i)
   keyboard k i =  TToy `overM` T.traverse (keyboard k i)
 
-instance ( T.Traversable t, Diagrammable a Cairo R2, Interactive a, R2 ~ V a)
+instance ( T.Traversable t, CairoDiagrammable a, Interactive a, R2 ~ V a)
       => GtkInteractive (TToy t a) where
-  display dw i x = displayDiagram toDiagram dw i x
+  display dw i x = displayDiagram diagram dw i x
 
 
 -- Diagrammable Toy instances
 
 instance Interactive (TDia a) where {}
 
-instance ( Diagrammable a Cairo R2 )
+instance ( Diagrammable Cairo a, V a ~ R2 )
       => GtkInteractive (TDia a) where
-  display dw i = TDia `overM` displayDiagram toDiagram dw i
+  display dw i = TDia `overM` displayDiagram diagram dw i
 
 
 -- | Wrapper for making a single-item interactive instance

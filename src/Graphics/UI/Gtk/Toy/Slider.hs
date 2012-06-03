@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances
            , FlexibleContexts
            , MultiParamTypeClasses
+           , ScopedTypeVariables
            , TemplateHaskell
            , TypeFamilies
            , TypeOperators
@@ -13,10 +14,11 @@
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
 --
+-- Primitive Slider UI element.
 --
 -----------------------------------------------------------------------------
 module Graphics.UI.Gtk.Toy.Slider 
-  ( Slider
+  ( Slider, CairoSlider
   , sliderHandle, sliderLine, sliderMetric
   , mkToggle, mkSlider
   ) where
@@ -41,38 +43,47 @@ import Graphics.Rendering.Diagrams.Points
 
 data Slider b v a = Slider
   { _sliderMetric :: Bijection (->) (Scalar v) a
-  , sliderHandle_ :: Draggable (Diagram b v)
+  , _sliderHandle' :: Draggable b (Diagram b v)
   , _sliderLine   :: v
   }
 
+type CairoSlider a = Slider Cairo R2 a
+
 $(mkLabels [''Slider])
 
-sliderHandle :: ( InnerSpace v
-                , s ~ Scalar v, Floating s, Ord s)
-             => Lens (->) (Slider b v a) (Draggable (Diagram b v))
-sliderHandle = lens sliderHandle_
-  $ \x s -> let offset' = roundtripBij $ get sliderMetric s . paramBij s
-             in s { sliderHandle_ = modify dragOffset offset' x }
- 
+sliderHandle :: (OrderedField (Scalar v), AdditiveGroup v)
+             => Lens (->) (Slider b v a) (Draggable b (Diagram b v))
+sliderHandle = lens (get sliderHandle')
+  $ \x s -> set (dragOffset . sliderHandle') (get sliderPos s) s
 
-newtypeBij :: Newtype b a => Bijection (->) a b
-newtypeBij = Bij pack unpack
+sliderValue :: forall b v a. (InnerSpace v, OrderedField (Scalar v))
+            => Slider b v a :-> a
+sliderValue = lens (\  s -> get (metric s) s)
+                   (\x s -> set (metric s) x s)
+ where
+  metric :: Slider b v a -> Slider b v a :-> a
+  metric s = get sliderMetric s `iso` paramLens
 
-roundtripBij :: Bijection (->) a b -> a -> a
-roundtripBij f = bw f . fw f
+sliderPos :: (AdditiveGroup v, OrderedField (Scalar v))
+          => Slider b v a :-> v
+sliderPos = dragOffset . sliderHandle
 
--- Bijection between 
-paramBij :: ( InnerSpace v
-            , s ~ Scalar v, Floating s, Ord s )
-         => Slider b v a -> Bijection (->) v (Scalar v)
-paramBij s
-  = Bij (clamp (0, 1) . (/ magnitude l) . (normalized l <.>))
-        (lerp zeroV l)
- where l = get sliderLine s
-       clamp (f, t) x
-         | x < f = f
-         | x > t = t
-         | otherwise = x
+roundtripUnder :: (a :-> b) -> a -> b -> b
+roundtripUnder l s v = get l $ set l v s
+
+-- Projects points onto the slider line, yielding a value in (0, 1).
+-- The other direction maps the parameter to locations.
+paramLens :: (InnerSpace v, OrderedField (Scalar v))
+          => Slider b v a :-> Scalar v
+paramLens = lens getter setter
+ where
+  getter s = clamp (0, 1) $ (normalized l <.> get sliderPos s) / magnitude l
+   where l = get sliderLine s
+  setter x s = set sliderPos (lerp zeroV (get sliderLine s) x) s
+  clamp (f, t) x
+    | x < f = f
+    | x > t = t
+    | otherwise = x
 
 type instance V (Slider b v a) = v
 
@@ -80,18 +91,18 @@ instance Interactive (Slider b R2 a) where
   mouse m i = modifyM sliderHandle (mouse m i)
 
 -- TODO: make vectorspace independent (requires polymorphic stroke)
-instance Diagrammable (Slider Cairo R2 a) Cairo R2 where
-  toDiagram s = stroke (fromOffsets [get sliderLine s])
-             <> toDiagram (get sliderHandle s)
+instance Diagrammable Cairo (CairoSlider a) where
+  diagram s = stroke (fromOffsets [get sliderLine s])
+             <> diagram (get sliderHandle s)
 
-instance ( InnerSpace v, HasBasis v, HasTrie (Basis v)
-         , AdditiveGroup (Scalar v), Floating (Scalar v), Ord (Scalar v) )
+instance ( InnerSpace v, HasLinearMap v, OrderedField (Scalar v) )
       => Enveloped (Slider b v a) where
   getEnvelope s = getEnvelope [origin, P $ get sliderLine s]
                <> getEnvelope (get sliderHandle s)
 
-mkSlider :: (Double, Double) -> Diagram b R2 -> R2 -> Slider b R2 Double
-mkSlider ivl d = Slider (ivlBij ivl) (mkDraggable (r2 (0, 0)) d)
+mkSlider :: (AdditiveGroup v, Fractional (Scalar v))
+         => (Scalar v, Scalar v) -> Diagram b v -> v -> Slider b v (Scalar v)
+mkSlider ivl d = Slider (ivlBij ivl) (mkDraggable zeroV d)
  where
   -- Creates a bijection between (0, 1) and some other interval
   ivlBij (f, t) = Bij (\x -> x * delta + f)

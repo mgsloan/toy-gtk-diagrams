@@ -31,6 +31,7 @@ Library
   Exposed-Modules:
     Graphics.UI.Gtk.Toy.Diagrams
     Graphics.UI.Gtk.Toy.Draggable
+    Graphics.UI.Gtk.Toy.Button
 --    Graphics.UI.Gtk.Toy.Generic
     Graphics.UI.Gtk.Toy.Prelude
     Graphics.UI.Gtk.Toy.Slider
@@ -38,81 +39,3 @@ Library
     Graphics.UI.Gtk.Toy.Text.Interactive
     Graphics.UI.Gtk.Toy.Transformed
     Graphics.UI.Gtk.Toy.Utils
-
-executable text
-  Main-Is:           src/Text.hs
-  Build-Depends:     base,
-                     containers,
-                     colour,
-                     diagrams-lib,
-                     diagrams-cairo,
-                     diagrams-core,
-                     diagrams-contrib,
-                     fclabels,
-                     gtk-toy,
-                     gtk-toy-diagrams,
-                     newtype,
-                     newtype-th
-
-executable handles
-  Main-Is:           src/Handles.hs
-  Build-Depends:     base,
-                     containers,
-                     colour,
-                     diagrams-lib,
-                     diagrams-cairo,
-                     diagrams-core,
-                     diagrams-contrib,
-                     fclabels,
-                     gtk,
-                     gtk-toy,
-                     gtk-toy-diagrams,
-                     newtype,
-                     newtype-th
-
-executable wrap
-  Main-Is:           src/Wrap.hs
-  Build-Depends:     base,
-                     containers,
-                     colour,
-                     diagrams-lib,
-                     diagrams-cairo,
-                     diagrams-core,
-                     diagrams-contrib,
-                     fclabels,
-                     gtk-toy,
-                     gtk-toy-diagrams,
-                     newtype,
-                     newtype-th
-
-executable forceLayout
-  Main-Is:           src/ForceLayout.hs
-  Build-Depends:     base,
-                     containers,
-                     colour,
-                     diagrams-lib,
-                     diagrams-cairo,
-                     diagrams-core,
-                     diagrams-contrib,
-                     fclabels,
-                     force-layout,
-                     gtk-toy,
-                     gtk-toy-diagrams,
-                     newtype,
-                     newtype-th
-
-executable transformed
-  Main-Is:           src/Transformed.hs
-  Build-Depends:     base,
-                     containers,
-                     colour,
-                     diagrams-lib,
-                     diagrams-cairo,
-                     diagrams-core,
-                     diagrams-contrib,
-                     fclabels,
-                     force-layout,
-                     gtk-toy,
-                     gtk-toy-diagrams,
-                     newtype,
-                     newtype-th

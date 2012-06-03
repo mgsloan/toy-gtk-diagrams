@@ -1,4 +1,5 @@
-{-# LANGUAGE FlexibleContexts
+{-# LANGUAGE DeriveDataTypeable
+           , FlexibleContexts
            , FlexibleInstances
            , GeneralizedNewtypeDeriving
            , MultiParamTypeClasses
@@ -9,6 +10,7 @@
            , UndecidableInstances
            , ImpredicativeTypes
            , ScopedTypeVariables
+           , StandaloneDeriving
   #-}
 -----------------------------------------------------------------------------
 -- |
@@ -23,40 +25,66 @@
 -----------------------------------------------------------------------------
 
 module Graphics.UI.Gtk.Toy.Transformed
-  ( Transformed(..), mkTransformed ) where
+  ( Transformed(..), mkTransformed, transformed
+--  , TThing, ToyThing(..)
+  ) where
 
 import Graphics.UI.Gtk.Toy
 import Graphics.UI.Gtk.Toy.Diagrams
 import Graphics.UI.Gtk.Toy.Utils
 
+import Control.Applicative ((<$>))
 import Control.Arrow (first, second)
 import Control.Newtype (Newtype, pack, unpack, under, over, overF)
 import Control.Newtype.TH
+import Data.Data (Data, Typeable, Typeable1)
 import Data.Foldable (fold, foldMap)
 import Data.Label
 import Diagrams.Backend.Cairo
-import Diagrams.Prelude hiding (under)
+import Diagrams.Prelude hiding (over, under)
 import Graphics.Rendering.Diagrams.Points
 import Debug.Trace
 
 newtype Transformed a = Transformed [(Transformation (V a), a)]
   deriving (Monoid, Semigroup)
 
+deriving instance Typeable1 Transformed
+deriving instance (Data a, Data (Transformation (V a))) => Data (Transformed a)
+
 {-
-data TThing 
+newtype TThing v 
   = TThing
-  ( forall a. ( R2 ~ V a, GtkInteractive a
-              , Enveloped a, Juxtaposable a
-              ) => a )
+  ( forall a. ( Interactive a, GtkInteractive a, Enveloped a, Juxtaposable a ) => a )
+-- deriving (Interactive, GtkInteractive, Enveloped, Juxtaposable)
+
+type instance (V (TThing v)) = v
+
+instance Interactive (TThing v) where
+  mouse    m i (TThing x) =       TThing <$> mouse    m i x
+  tick       i (TThing x) = first TThing <$> tick       i x
+  keyboard k i (TThing x) =       TThing <$> keyboard k i x
+
+instance GtkInteractive (TThing v) where
+  display dw i (TThing x) =       TThing <$> display dw i x
+
+instance Enveloped (TThing v) where
+  getEnvelope  (TThing x) = getEnvelope x
+
+--instance Juxtaposable TThing where
+--  juxtapose = 
 
 -- | Existential wrapper for GtkInteractive, layout-able stuff
-type ToyThing = Transformed TThing
+type ToyThing v = Transformed (TThing v)
+
 -}
 
-$(mkNewTypes [''Transformed])
+$(mkNewType ''Transformed)
 
 mkTransformed :: HasLinearMap (V a) => a -> Transformed a
 mkTransformed = Transformed . (:[]) . (mempty, )
+
+transformed :: (Transformable a) => Transformed a -> [a]
+transformed = map (uncurry transform) . unpack
 
 type instance V (Transformed a) = V a
 
@@ -81,9 +109,9 @@ instance HasStyle a => HasStyle (Transformed a) where
   applyStyle s = Transformed `over` map (second $ applyStyle s)
 
 instance ( v ~ V a, HasLinearMap v, InnerSpace v, OrderedField (Scalar v)
-         , Diagrammable a Cairo v)
-        => Diagrammable (Transformed a) Cairo v where
-  toDiagram = foldMap (\(t, x) -> transform t $ toDiagram x) . unpack
+         , Diagrammable Cairo a)
+        => Diagrammable Cairo (Transformed a) where
+  diagram = foldMap (\(t, x) -> transform t $ diagram x) . unpack
 
 instance ( Enveloped a, HasLinearMap (V a) )
       => Juxtaposable (Transformed a) where
@@ -99,9 +127,9 @@ instance ( Interactive a, V a ~ R2 )
   mouse    m = overInpT (mouse m)
   keyboard k = overInpT (keyboard k)
 
-instance ( Interactive a, Diagrammable a Cairo R2, V a ~ R2 )
+instance ( Interactive a, Diagrammable Cairo a, V a ~ R2 )
       => GtkInteractive (Transformed a) where
-  display dw i = displayDiagram toDiagram dw i
+  display dw i = displayDiagram diagram dw i
 
 instance ( Clickable a, HasLinearMap (V a) )
         => Clickable (Transformed a) where

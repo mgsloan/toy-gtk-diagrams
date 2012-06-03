@@ -45,6 +45,6 @@ sybIsCursor = any id . gmapQ (mkQ False isCursor)
 sybDrawMark x s d = foldr ($) d $ gmapQ (mkQ id $ (`drawMark` s)) x
 
 sybDiagrams :: Data a => a -> [CairoDiagram]
-sybDiagrams = gmapQ (mkQ mempty toDiagram)
+sybDiagrams = gmapQ (mkQ mempty diagram)
  -}
 

@@ -1,6 +1,7 @@
-{-# LANGUAGE RankNTypes
+{-# LANGUAGE DeriveDataTypeable
            , FlexibleInstances
            , MultiParamTypeClasses
+           , RankNTypes
            , TemplateHaskell
            , TupleSections
            , TypeFamilies
@@ -14,42 +15,45 @@
 -- Maintainer  :  mgsloan@gmail.com
 --
 -- Provides a (currently inefficient) representation of text with styling and
--- metadata annotations applied to particular intervals.
+-- meta-data annotations applied to particular intervals.
 --
 -----------------------------------------------------------------------------
 module Graphics.UI.Gtk.Toy.Text where
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
 
 import Diagrams.Prelude
 import Diagrams.TwoD.Text
-import Diagrams.Backend.Cairo.Text (StyleParam, textLineBounded)
-
-import Control.Arrow (first, second, (***), (&&&))
-import Control.Applicative ((<$>))
-import Control.Monad (msum)
-import Control.Newtype (Newtype(..))
-
-import Data.Colour.Names (black, white)
-import Data.Either (partitionEithers)
+import Diagrams.Backend.Cairo ( Cairo )
+import Diagrams.Backend.Cairo.Text ( textLineBounded )
+import Control.Arrow       ( first, second, (***), (&&&) )
+import Control.Applicative ( (<$>) )
+import Control.Monad       ( msum )
+import Control.Newtype     ( Newtype(..) )
+import Data.Data           ( Data, Typeable )
+import Data.Colour.Names   ( black, white )
+import Data.Either         ( partitionEithers )
 import Data.Label
-import Data.List (partition, findIndices, sortBy, sort, delete, group, (\\))
-import Data.Maybe (catMaybes, mapMaybe, listToMaybe)
-import Data.Ord (comparing)
+import Data.List           ( partition, findIndices, sortBy, sort, delete, group, (\\) )
+import Data.Maybe          ( catMaybes, mapMaybe, listToMaybe )
+import Data.Ord            ( comparing )
+import Debug.Trace         ( trace )
 
-import Debug.Trace (trace)
+import Graphics.UI.Gtk.Toy
+import Graphics.UI.Gtk.Toy.Diagrams
+import Graphics.UI.Gtk.Toy.Utils ( highlight )
 
 type Ivl = (Int, Int)
 
 data MarkedText m = MarkedText
   { _mText  :: String
   , _mMarks :: [(Ivl, m)]
-  } deriving (Eq, Show)
+  } deriving (Eq, Show, Typeable, Data)
+
+type instance V (MarkedText m) = R2
 
 $(mkLabels [''MarkedText])
 
-newtype StyleState = StyleState StyleParam
+newtype StyleState = StyleState (Style R2)
 
 class CanBeCursor a where
   mkCursor :: a
@@ -63,7 +67,7 @@ class Mark a where
   type DrawState a
   initialDrawState :: MarkedText a -> DrawState a
 
-  drawStateStyle :: MarkedText a -> DrawState a -> StyleParam
+  drawStateStyle :: MarkedText a -> DrawState a -> Style R2
   drawStateStyle _ _ = monoStyle
 
   drawMark :: a -> DrawState a -> MarkedText a -> CairoDiagram
@@ -75,8 +79,8 @@ class Mark a where
   splitMark :: Int -> a -> (Maybe a, Maybe a)
   splitMark _ x = (Just x, Just x)
 
-monoStyle :: StyleParam
-monoStyle = font "monospace" . fontSize 18
+monoStyle :: Style R2
+monoStyle = font "monospace" $ fontSize 18 mempty
 
 emptyText :: MarkedText m
 emptyText = MarkedText "" []
@@ -139,8 +143,8 @@ performMerges (x:xs) ys = case msum . map doMerge $ ys of
 --TODO: consider a mark for lines / line #s?
 --TODO: figure out how style will be applied to the text by marks
 
-drawText' :: Mark m => MarkedText m -> CairoDiagram
-drawText' mt = drawText (initialDrawState mt) mt
+instance Mark m => Diagrammable Cairo (MarkedText m) where
+  diagram mt = drawText (initialDrawState mt) mt
 
 drawText :: Mark m => DrawState m -> MarkedText m -> CairoDiagram
 drawText initial mt
@@ -267,7 +271,7 @@ smallestEnclosing f ivl = listToMaybe
 
 -- Builtin Marks
 
-data EmptyMark = EmptyMark deriving (Eq, Show)
+data EmptyMark = EmptyMark deriving (Eq, Show, Data, Typeable)
 
 instance Mark EmptyMark where
   type DrawState EmptyMark = ()
@@ -276,54 +280,51 @@ instance Mark EmptyMark where
   drawMark m _ mt = drawRec () mt
   mergeMark _ _ = Just EmptyMark
 
-data CursorMark = CursorMark deriving (Eq, Show)
+data CursorMark = CursorMark deriving (Eq, Show, Data, Typeable)
 
 instance CanBeCursor CursorMark where
   mkCursor = CursorMark
   isCursor = const True
 
 instance Mark CursorMark where
-  type DrawState CursorMark = StyleState
-  initialDrawState _ = StyleState monoStyle
-  drawStateStyle _ (StyleState s) = s
-  drawMark m (StyleState s) mt@(MarkedText txt _)
+  type DrawState CursorMark = Style R2
+  initialDrawState _ = monoStyle
+  drawStateStyle _ s = s
+  drawMark m s mt@(MarkedText txt _)
     | null txt = lineWidth 1 . lineColor black
                . moveOriginBy (pack (-1.5, 2.0))
                . setEnvelope mempty
                . stroke . pathFromTrail
                $ Trail [Linear $ pack (0, 18)] False
-    | otherwise = highlight black $ drawRec (StyleState $ s . fc white) mt 
+    | otherwise = highlight black $ drawRec (applyStyle (fc white mempty) s) mt 
   mergeMark _ _ = Just CursorMark
-
-highlight c d = setEnvelope (getEnvelope d)
-              $ d <> boxFit (boundingBox d) (square 1) # fc c
 
 --TODO: These don't quite work the way that they should yet, in the case that
 --the user-provided style overrides them. Plus they won't effect font dimension
 
-data SizeMark = SizeMark Double
+data SizeMark = SizeMark Double deriving (Eq, Show, Data, Typeable)
 instance Mark SizeMark where
-  type DrawState SizeMark = StyleState
-  initialDrawState _ = StyleState monoStyle
-  drawStateStyle _ (StyleState s) = s
-  drawMark (SizeMark size) (StyleState s) mt
-    = drawRec (StyleState $ fontSize size . s) mt
+  type DrawState SizeMark = Style R2
+  initialDrawState _ = monoStyle
+  drawStateStyle _ s = s
+  drawMark (SizeMark size) s mt
+    = drawRec (applyStyle (fontSize size mempty) s) mt
   
 data SlantMark = SlantMark FontSlant
 instance Mark SlantMark where
-  type DrawState SlantMark = StyleState
-  initialDrawState _ = StyleState monoStyle
-  drawStateStyle _ (StyleState s) = s
-  drawMark (SlantMark slant) (StyleState s) mt
-    = drawRec (StyleState $ fontSlant slant . s) mt
+  type DrawState SlantMark = Style R2
+  initialDrawState _ = monoStyle
+  drawStateStyle _ s = s
+  drawMark (SlantMark slant) s mt
+    = drawRec (applyStyle (fontSlant slant mempty) s) mt
 
 data WeightMark = WeightMark FontWeight
 instance Mark WeightMark where
-  type DrawState WeightMark = StyleState
-  initialDrawState _ = StyleState monoStyle
-  drawStateStyle _ (StyleState s) = s
-  drawMark (WeightMark weight) (StyleState s) mt
-    = drawRec (StyleState $ fontWeight weight . s) mt
+  type DrawState WeightMark = Style R2
+  initialDrawState _ = monoStyle
+  drawStateStyle _ s = s
+  drawMark (WeightMark weight) s mt
+    = drawRec (applyStyle (fontWeight weight mempty) s) mt
 
 -- Utils
 

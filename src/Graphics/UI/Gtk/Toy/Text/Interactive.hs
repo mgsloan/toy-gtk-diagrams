@@ -9,7 +9,7 @@ import Control.Arrow (first, second)
 import Data.Colour.Names (black, yellow)
 import Data.Maybe (maybeToList)
 import Diagrams.Prelude
-import Diagrams.Backend.Cairo.Text (StyleParam, textLineBounded)
+import Diagrams.Backend.Cairo.Text (textLineBounded)
 
 import System.IO.Unsafe
 
@@ -26,7 +26,7 @@ instance (Eq m, Mark m, CanBeCursor m)
           $ \mt -> scaleY (-1)
                  $ strutY 18
                    ===
-                  ( strutX 10 ||| alignT (drawText' mt) )
+                  ( strutX 10 ||| alignT (diagram mt) )
 
 textKeyHandler :: (Eq m, Mark m, CanBeCursor m)
                => KeyEvent -> MarkedText m -> MarkedText m
