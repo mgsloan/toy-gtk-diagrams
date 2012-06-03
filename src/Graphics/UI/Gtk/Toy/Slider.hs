@@ -19,7 +19,7 @@
 -----------------------------------------------------------------------------
 module Graphics.UI.Gtk.Toy.Slider 
   ( Slider, CairoSlider
-  , sliderHandle, sliderLine, sliderMetric
+  , sliderHandle, sliderLine, sliderMetric, sliderValue
   , mkToggle, mkSlider
   ) where
 
@@ -51,10 +51,12 @@ type CairoSlider a = Slider Cairo R2 a
 
 $(mkLabels [''Slider])
 
+--TODO: broken
 sliderHandle :: (OrderedField (Scalar v), AdditiveGroup v)
              => Lens (->) (Slider b v a) (Draggable b (Diagram b v))
 sliderHandle = lens (get sliderHandle')
-  $ \x s -> set (dragOffset . sliderHandle') (get sliderPos s) s
+  $ \x s -> set (dragOffset . sliderHandle') (get sliderPos s)
+          $ set sliderHandle' x s
 
 sliderValue :: forall b v a. (InnerSpace v, OrderedField (Scalar v))
             => Slider b v a :-> a
