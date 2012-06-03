@@ -1,6 +1,7 @@
 Checkout Diagrams:
 ```sh
 darcs get http://patch-tag.com/r/byorgey/dubl-tree
+darcs get http://patch-tag.com/r/byorgey/monoid-extras
 darcs get http://patch-tag.com/r/byorgey/diagrams-core
 darcs get http://patch-tag.com/r/byorgey/diagrams-lib
 darcs get http://patch-tag.com/r/byorgey/diagrams-cairo
