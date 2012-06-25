@@ -76,7 +76,7 @@ instance Interactive State where
 
   tick     = simpleTick update
   
-  keyboard = quitKeyboard
+  keyboard = handleKeys escapeKeyHandler
 
 instance Diagrammable Cairo State where
   diagram (State e hm conf)
