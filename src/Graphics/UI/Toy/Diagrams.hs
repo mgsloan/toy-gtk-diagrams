@@ -16,7 +16,7 @@
            #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Diagrams
+-- Module      :  Graphics.UI.Toy.Diagrams
 -- Copyright   :  (c) 2011 Michael Sloan 
 -- License     :  BSD-style (see the LICENSE file)
 --
@@ -25,7 +25,7 @@
 -- Portability :  GHC only
 --
 -----------------------------------------------------------------------------
-module Graphics.UI.Gtk.Toy.Diagrams
+module Graphics.UI.Toy.Diagrams
   ( 
   -- * CairoDiagram type alias
     CairoDiagram
@@ -41,8 +41,8 @@ module Graphics.UI.Gtk.Toy.Diagrams
   , displayDiagram
   ) where
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Utils
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Utils
 
 import Diagrams.Prelude
 import Diagrams.Backend.Cairo
@@ -79,7 +79,7 @@ instance HasLinearMap v => Clickable (Diagram b v) where
 -- | Wrapper for making traversable things interactive.
 newtype TToy t a = TToy (t a)
 
--- | Wrapper to make @GtkInteractive@ instances for Diagrammables.
+-- | Wrapper to make @GtkDisplay@ instances for Diagrammables.
 newtype TDia a = TDia a
   deriving (Clickable, Juxtaposable)
 
@@ -102,9 +102,9 @@ instance Diagrammable b a => Diagrammable b (TDia a) where
 $(mkNewTypes [''TToy, ''TDia])
 
 -- | Convenience function for implementing the display function of
---   Interactive.
+--   Interactive ib.
 displayDiagram :: (a -> CairoDiagram)
-               -> G.DrawWindow -> InputState -> a -> IO a
+               -> G.DrawWindow -> InputState Gtk -> a -> IO a
 displayDiagram f dw _ x = (renderToGtk dw $ f x) >> return x
 
 -- Traversable Toy instances
@@ -114,25 +114,25 @@ instance ( T.Traversable t, Diagrammable b a
       => Diagrammable b (TToy t a) where
   diagram = T.foldMapDefault diagram . unpack
 
-instance ( T.Traversable t, Interactive a )
-      => Interactive (TToy t a) where
+instance ( T.Traversable t, Interactive ib a )
+      => Interactive ib (TToy t a) where
   -- TODO: or together the boolean results
   tick       i = liftA (, True)
                . (TToy `overM` T.traverse (liftA fst . tick i))
   mouse    m i =  TToy `overM` T.traverse (mouse m i)
   keyboard k i =  TToy `overM` T.traverse (keyboard k i)
 
-instance ( T.Traversable t, CairoDiagrammable a, Interactive a, R2 ~ V a)
-      => GtkInteractive (TToy t a) where
+instance ( T.Traversable t, CairoDiagrammable a, R2 ~ V a)
+      => GtkDisplay (TToy t a) where
   display dw i x = displayDiagram diagram dw i x
 
 
 -- Diagrammable Toy instances
 
-instance Interactive (TDia a) where {}
+instance Interactive ib (TDia a) where {}
 
 instance ( Diagrammable Cairo a, V a ~ R2 )
-      => GtkInteractive (TDia a) where
+      => GtkDisplay (TDia a) where
   display dw i = TDia `overM` displayDiagram diagram dw i
 
 

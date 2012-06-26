@@ -29,13 +29,13 @@ Library
                      vector-space
   Hs-source-dirs:    src
   Exposed-Modules:
-    Graphics.UI.Gtk.Toy.Diagrams
-    Graphics.UI.Gtk.Toy.Draggable
---    Graphics.UI.Gtk.Toy.Button
---    Graphics.UI.Gtk.Toy.Generic
-    Graphics.UI.Gtk.Toy.Prelude
-    Graphics.UI.Gtk.Toy.Slider
-    Graphics.UI.Gtk.Toy.Text
-    Graphics.UI.Gtk.Toy.Text.Interactive
-    Graphics.UI.Gtk.Toy.Transformed
-    Graphics.UI.Gtk.Toy.Utils
+    Graphics.UI.Toy.Diagrams
+    Graphics.UI.Toy.Draggable
+--    Graphics.UI.Toy.Button
+--    Graphics.UI.Toy.Generic
+    Graphics.UI.Toy.Prelude
+    Graphics.UI.Toy.Slider
+    Graphics.UI.Toy.Text
+    Graphics.UI.Toy.Text.Interactive
+    Graphics.UI.Toy.Transformed
+    Graphics.UI.Toy.Utils

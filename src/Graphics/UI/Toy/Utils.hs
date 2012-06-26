@@ -4,7 +4,7 @@
            , ScopedTypeVariables
            , RankNTypes
   #-}
-module Graphics.UI.Gtk.Toy.Utils where
+module Graphics.UI.Toy.Utils where
 
 import Control.Newtype (Newtype, overF)
 import Data.Label

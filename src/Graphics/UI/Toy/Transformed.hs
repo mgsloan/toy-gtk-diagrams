@@ -14,7 +14,7 @@
   #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Transformed
+-- Module      :  Graphics.UI.Toy.Transformed
 -- Copyright   :  (c) 2011 Michael Sloan 
 -- License     :  BSD-style (see the LICENSE file)
 --
@@ -24,14 +24,14 @@
 --
 -----------------------------------------------------------------------------
 
-module Graphics.UI.Gtk.Toy.Transformed
+module Graphics.UI.Toy.Transformed
   ( Transformed(..), mkTransformed, transformed
 --  , TThing, ToyThing(..)
   ) where
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
-import Graphics.UI.Gtk.Toy.Utils
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Diagrams
+import Graphics.UI.Toy.Utils
 
 import Control.Applicative ((<$>))
 import Control.Arrow (first, second)
@@ -54,17 +54,17 @@ deriving instance (Data a, Data (Transformation (V a))) => Data (Transformed a)
 {-
 newtype TThing v 
   = TThing
-  ( forall a. ( Interactive a, GtkInteractive a, Enveloped a, Juxtaposable a ) => a )
--- deriving (Interactive, GtkInteractive, Enveloped, Juxtaposable)
+  ( forall a. ( Interactive Gtk a, GtkDisplay a, Enveloped a, Juxtaposable a ) => a )
+-- deriving (Interactive Gtk, GtkDisplay, Enveloped, Juxtaposable)
 
 type instance (V (TThing v)) = v
 
-instance Interactive (TThing v) where
+instance Interactive Gtk (TThing v) where
   mouse    m i (TThing x) =       TThing <$> mouse    m i x
   tick       i (TThing x) = first TThing <$> tick       i x
   keyboard k i (TThing x) =       TThing <$> keyboard k i x
 
-instance GtkInteractive (TThing v) where
+instance GtkDisplay (TThing v) where
   display dw i (TThing x) =       TThing <$> display dw i x
 
 instance Enveloped (TThing v) where
@@ -73,7 +73,7 @@ instance Enveloped (TThing v) where
 --instance Juxtaposable TThing where
 --  juxtapose = 
 
--- | Existential wrapper for GtkInteractive, layout-able stuff
+-- | Existential wrapper for GtkDisplay, layout-able stuff
 type ToyThing v = Transformed (TThing v)
 
 -}
@@ -88,9 +88,9 @@ transformed = map (uncurry transform) . unpack
 
 type instance V (Transformed a) = V a
 
-type instance V InputState = R2
+type instance V (InputState Gtk) = R2
 
-instance Transformable InputState where
+instance Transformable (InputState Gtk) where
 --  transform t is = is { mousePos = trace (show $ transl $ inv t) $ debug $ transform t $ mousePos is }
   transform t is = is { mousePos = unpack . under P (transform $ inv t) . pack
                                  $ mousePos is }
@@ -119,16 +119,16 @@ instance ( Enveloped a, HasLinearMap (V a) )
 
 overInpT f i = Transformed `overM` mapM (\(t, x) -> (t,) <$> f (transform t i) x)
 
-instance ( Interactive a, V a ~ R2 )
-      => Interactive (Transformed a) where
+instance ( Interactive Gtk a, V a ~ R2 )
+      => Interactive Gtk (Transformed a) where
   -- TODO: or together the boolean results
   tick     i = liftA (, True)
              . overInpT (\i' -> liftA fst . tick i') i
   mouse    m = overInpT (mouse m)
   keyboard k = overInpT (keyboard k)
 
-instance ( Interactive a, Diagrammable Cairo a, V a ~ R2 )
-      => GtkInteractive (Transformed a) where
+instance ( Interactive Gtk a, Diagrammable Cairo a, V a ~ R2 )
+      => GtkDisplay (Transformed a) where
   display dw i = displayDiagram diagram dw i
 
 instance ( Clickable a, HasLinearMap (V a) )
@@ -136,12 +136,12 @@ instance ( Clickable a, HasLinearMap (V a) )
   clickInside d p = any (\(t, x) -> clickInside x $ transform t p) $ unpack d
 
 {-
-instance Interactive TThing where
+instance Interactive Gtk TThing where
   tick       i = liftA (, True)
                $ TThing `overM` (liftA fst . tick i)
   mouse    m i = TThing `overM` mouse m i
   keyboard k i = TThing `overM` keyboard k i
 
-instance GtkInteractive TThing where
+instance GtkDisplay TThing where
   display = display
 -}

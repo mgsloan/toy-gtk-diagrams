@@ -12,14 +12,14 @@
   #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Button
+-- Module      :  Graphics.UI.Toy.Button
 -- Copyright   :  (c) 2011 Michael Sloan (see LICENSE)
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
 --
 --
 -----------------------------------------------------------------------------
-module Graphics.UI.Gtk.Toy.Button
+module Graphics.UI.Toy.Button
   ( Button
   , buttonHeld, buttonHit, buttonFunc, buttonState
   
@@ -37,9 +37,9 @@ import Diagrams.Backend.Cairo.Text (textLineBounded)
 import Diagrams.Prelude
 import Graphics.Rendering.Diagrams.Points (Point(..))
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
-import Graphics.UI.Gtk.Toy.Utils (overM, highlight, underlayMatchExtents)
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Diagrams
+import Graphics.UI.Toy.Utils (overM, highlight, underlayMatchExtents)
 
 -- TODO: callback rather than "buttonHit" state?
 
@@ -64,7 +64,7 @@ buttonId = button id
 
 --TODO: allow custom clickable as before?
 
-instance (Diagrammable b a, V a ~ R2) => Interactive (Button b a) where
+instance (Diagrammable b a, V a ~ R2) => Interactive ib (Button b a) where
   mouse (Just (c, 0)) i b
     | ci && c   = return
                 . set buttonHeld True
@@ -115,7 +115,7 @@ mkCairoButton style txt
   $ flip (uncurry roundedRect . unr2) 3
 
 instance (Diagrammable b a, V a ~ R2)
-  => Interactive (InvertButton b a)
+  => Interactive ib (InvertButton b a)
  where
   mouse m i = InvertButton `overM` mouse m i
 

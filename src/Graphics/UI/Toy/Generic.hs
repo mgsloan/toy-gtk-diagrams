@@ -2,18 +2,18 @@
            , FlexibleContexts #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Generic
+-- Module      :  Graphics.UI.Toy.Generic
 -- Copyright   :  (c) 2011 Michael Sloan (see LICENSE)
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
 --
 --
 -----------------------------------------------------------------------------
-module Graphics.UI.Gtk.Toy.Generic where
+module Graphics.UI.Toy.Generic where
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
-import Graphics.UI.Gtk.Toy.Text
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Diagrams
+import Graphics.UI.Toy.Text
 
 import Diagrams.Prelude
 import Diagrams.Backend.Cairo
@@ -25,10 +25,10 @@ import Data.Generics.Aliases (mkM, mkQ)
 -- TODO: Good way to do this ?
 
 {-
-newtype GenericInteractive a = GenericInteractive a
+newtype GenericInteractive ib a = GenericInteractive ib a
   deriving (Data, Typeable)
 
-instance Data a => Interactive (GenericInteractive a) where
+instance Data a => Interactive ib (GenericInteractive ib a) where
   tick = sybTick
   mouse = sybMouse
   keyboard = sybKeyboard

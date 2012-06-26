@@ -1,8 +1,9 @@
-module Graphics.UI.Gtk.Toy.Text.Interactive where
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+module Graphics.UI.Toy.Text.Interactive where
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
-import Graphics.UI.Gtk.Toy.Text
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Diagrams
+import Graphics.UI.Toy.Text
 
 import Control.Arrow (first, second)
 
@@ -17,11 +18,11 @@ cursorText :: (Mark m, CanBeCursor m) => MarkedText m
 cursorText = MarkedText "" [((0, 0), mkCursor)]
 
 instance (Eq m, Mark m, CanBeCursor m)
-      => Interactive (MarkedText m) where
+      => Interactive ib (MarkedText m) where
   keyboard = simpleKeyboard textKeyHandler
 
 instance (Eq m, Mark m, CanBeCursor m)
-      => GtkInteractive (MarkedText m) where
+      => GtkDisplay (MarkedText m) where
   display = displayDiagram
           $ \mt -> scaleY (-1)
                  $ strutY 18

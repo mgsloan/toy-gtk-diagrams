@@ -1,7 +1,7 @@
 module Toys.Text where
 
 import Data.Default
-import Graphics.UI.Gtk.Toy.Prelude
+import Graphics.UI.Toy.Prelude
 
 type State = MarkedText CursorMark
 

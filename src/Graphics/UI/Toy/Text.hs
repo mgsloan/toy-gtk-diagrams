@@ -9,7 +9,7 @@
   #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Text
+-- Module      :  Graphics.UI.Toy.Text
 -- Copyright   :  (c) 2011 Michael Sloan (see LICENSE)
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
@@ -18,7 +18,7 @@
 -- meta-data annotations applied to particular intervals.
 --
 -----------------------------------------------------------------------------
-module Graphics.UI.Gtk.Toy.Text where
+module Graphics.UI.Toy.Text where
 
 
 import Diagrams.Prelude hiding ( trace )
@@ -38,9 +38,9 @@ import Data.Maybe          ( catMaybes, mapMaybe, listToMaybe )
 import Data.Ord            ( comparing )
 import Debug.Trace         ( trace )
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
-import Graphics.UI.Gtk.Toy.Utils ( highlight )
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Diagrams
+import Graphics.UI.Toy.Utils ( highlight )
 
 type Ivl = (Int, Int)
 

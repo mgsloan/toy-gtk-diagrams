@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Demo
+-- Module      :  Graphics.UI.Toy.Demo
 -- Copyright   :  (c) 2012 Michael Sloan (see LICENSE)
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
@@ -73,8 +73,8 @@ instance (Default a, ManipFunc b)
   runManips f (m:ms) = runManips (f (get manipulated $ fromDyn m)) ms
 
 {-
-instance (Interactive a, Interactive b)
-      => Interactive (Demo a b) where
+instance (Interactive ib a, Interactive ib)
+      => Interactive ib (Demo a b) where
   tick i (Demo x f) = do
     x' <- tick i x
     tick i (f x')

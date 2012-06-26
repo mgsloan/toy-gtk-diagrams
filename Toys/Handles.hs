@@ -5,10 +5,10 @@ module Toys.Handles where
 
 import Data.Default
 
-import Graphics.UI.Gtk.Toy.Prelude
+import Graphics.UI.Toy.Prelude
 
 newtype State = State (TToy [] (CairoDraggable CairoDiagram))
-  deriving (Interactive, GtkInteractive, Diagrammable Cairo)
+  deriving (Interactive Gtk, GtkDisplay, Diagrammable Cairo)
 
 type instance V State = R2
 

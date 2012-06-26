@@ -5,9 +5,9 @@ import Data.Default
 import Data.Dynamic
 import Control.Newtype (pack)
 
-import Graphics.UI.Gtk.Toy.Prelude
-import Graphics.UI.Gtk.Toy.Slider
-import Graphics.UI.Gtk.Toy.Transformed
+import Graphics.UI.Toy.Prelude
+import Graphics.UI.Toy.Slider
+import Graphics.UI.Toy.Transformed
 
 type State = Transformed (Slider Cairo R2 Double)
 

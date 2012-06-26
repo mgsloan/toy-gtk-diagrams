@@ -11,7 +11,7 @@
            , UndecidableInstances #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Draggable
+-- Module      :  Graphics.UI.Toy.Draggable
 -- Copyright   :  (c) 2011 Michael Sloan (see LICENSE)
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
@@ -19,7 +19,7 @@
 -- Utilities for things that can be clicked and dragged around.
 --
 -----------------------------------------------------------------------------
-module Graphics.UI.Gtk.Toy.Draggable
+module Graphics.UI.Toy.Draggable
   ( Draggable(..), CairoDraggable
 
   -- * Lenses
@@ -44,8 +44,8 @@ import Diagrams.Prelude
 import Diagrams.TwoD.Text
 import Graphics.Rendering.Diagrams.Points
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Diagrams
 
 -- | Draggable things are translatable, and store state during the drag
 --   process.
@@ -73,12 +73,13 @@ instance ( V a ~ v, HasLinearMap v, InnerSpace v, OrderedField (Scalar v)
   diagram d@(Draggable _ _ a)
     = translate (get dragOffset d) $ diagram a
 
-instance ( V a ~ R2, Clickable a )
-      => Interactive (Draggable b a) where
+instance ( Clickable a,
+           Newtype (V a) (MousePos ib), InnerSpace (V a) )
+      => Interactive ib (Draggable b a) where
   mouse = simpleMouse mouseDrag
 
 instance ( V a ~ R2, CairoDiagrammable a, Clickable a )
-      => GtkInteractive (Draggable Cairo a) where
+      => GtkDisplay (Draggable Cairo a) where
   display = displayDiagram diagram
 
 instance ( V a ~ v, Clickable a, InnerSpace v )

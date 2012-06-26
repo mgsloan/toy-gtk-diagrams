@@ -9,7 +9,7 @@
   #-}
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Graphics.UI.Gtk.Toy.Slider
+-- Module      :  Graphics.UI.Toy.Slider
 -- Copyright   :  (c) 2012 Michael Sloan (see LICENSE)
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
@@ -17,16 +17,16 @@
 -- Primitive Slider UI element.
 --
 -----------------------------------------------------------------------------
-module Graphics.UI.Gtk.Toy.Slider 
+module Graphics.UI.Toy.Slider 
   ( Slider, CairoSlider
   , sliderHandle, sliderLine, sliderMetric, sliderValue
   , mkToggle, mkSlider
   ) where
 
-import Graphics.UI.Gtk.Toy
-import Graphics.UI.Gtk.Toy.Diagrams
-import Graphics.UI.Gtk.Toy.Draggable
-import Graphics.UI.Gtk.Toy.Utils
+import Graphics.UI.Toy.Gtk
+import Graphics.UI.Toy.Diagrams
+import Graphics.UI.Toy.Draggable
+import Graphics.UI.Toy.Utils
 
 import Prelude hiding ((.))
 import Control.Category ((.))
@@ -51,7 +51,7 @@ type CairoSlider a = Slider Cairo R2 a
 
 $(mkLabels [''Slider])
 
---TODO: broken
+--TODO: broken?
 sliderHandle :: (OrderedField (Scalar v), AdditiveGroup v, InnerSpace v)
              => Lens (->) (Slider b v a) (Draggable b (Diagram b v))
 sliderHandle = lens (get sliderHandle') setter
@@ -91,7 +91,8 @@ paramLens = lens getter setter
 
 type instance V (Slider b v a) = v
 
-instance Interactive (Slider b R2 a) where
+--TODO: Make more generic once we have "D2"
+instance (Newtype R2 (MousePos ib)) => Interactive ib (Slider b R2 a) where
   mouse m i = modifyM sliderHandle (mouse m i)
 
 -- TODO: make vectorspace independent (requires polymorphic stroke)

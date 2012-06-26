@@ -1,4 +1,5 @@
-{-# LANGUAGE MultiParamTypeClasses
+{-# LANGUAGE FlexibleInstances
+           , MultiParamTypeClasses
            , TemplateHaskell
            , TypeFamilies
            , TypeOperators
@@ -7,7 +8,7 @@
 
 module Toys.ForceLayout where
 
-import Graphics.UI.Gtk.Toy.Prelude
+import Graphics.UI.Toy.Prelude
 
 import Prelude   hiding ((.))
 import Control.Category ((.))
@@ -67,7 +68,7 @@ instance Default State where
 
 uiOffset = r2 (10, 100)
 
-instance Interactive State where
+instance Interactive Gtk State where
   mouse m i s = do
     s' <- simpleMouse (\p m (State e hm c) 
                         -> State e (M.map (mouseDrag p m) hm) c) m i s
@@ -83,7 +84,7 @@ instance Diagrammable Cairo State where
     = (mconcat . map diagram $ M.elems hm)
     <> translate uiOffset (diagram $ get dampingSlider conf)
 
-instance GtkInteractive State where
+instance GtkDisplay State where
   display = displayDiagram diagram
 
 update :: State -> State
