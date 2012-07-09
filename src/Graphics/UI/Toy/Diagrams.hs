@@ -102,7 +102,7 @@ instance Diagrammable b a => Diagrammable b (TDia a) where
 $(mkNewTypes [''TToy, ''TDia])
 
 -- | Convenience function for implementing the display function of
---   Interactive ib.
+--   Interactive.
 displayDiagram :: (a -> CairoDiagram)
                -> G.DrawWindow -> InputState Gtk -> a -> IO a
 displayDiagram f dw _ x = (renderToGtk dw $ f x) >> return x

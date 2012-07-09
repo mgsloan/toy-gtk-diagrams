@@ -16,6 +16,7 @@ main = runToy $ def { animDiagram = animMach }
     = mach t 6
     # rotate (Deg $ t * 30)
     # scale 0.8
+    # translate (r2 (300, 300))
 
   mach t 0 = leaf
   mach t d
