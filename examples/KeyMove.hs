@@ -1,6 +1,6 @@
 {-# LANGUAGE MultiParamTypeClasses, TypeFamilies #-}
 
-import Graphics.UI.Toy.Prelude hiding (keyHandler)
+import Graphics.UI.Toy.Prelude
 
 data Sprite = Sprite {
   pos, vel :: R2
