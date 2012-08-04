@@ -1,19 +1,20 @@
-{-# LANGUAGE ConstraintKinds
-           , ExistentialQuantification
-           , FlexibleInstances
-           , FlexibleContexts 
-           , GeneralizedNewtypeDeriving
-           , MultiParamTypeClasses
-           , ScopedTypeVariables
-           , StandaloneDeriving
-           , TemplateHaskell
-           , TupleSections
-           , TypeFamilies
-           , TypeOperators
-           , TypeSynonymInstances
-           , UndecidableInstances
-           , KindSignatures
-           #-}
+{-# LANGUAGE
+    ConstraintKinds
+  , ExistentialQuantification
+  , FlexibleInstances
+  , FlexibleContexts
+  , GeneralizedNewtypeDeriving
+  , MultiParamTypeClasses
+  , ScopedTypeVariables
+  , StandaloneDeriving
+  , TemplateHaskell
+  , TupleSections
+  , TypeFamilies
+  , TypeOperators
+  , TypeSynonymInstances
+  , UndecidableInstances
+  , KindSignatures
+  #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.UI.Toy.Diagrams
@@ -101,8 +102,7 @@ instance Diagrammable b a => Diagrammable b (TDia a) where
 
 $(mkNewTypes [''TToy, ''TDia])
 
--- | Convenience function for implementing the display function of
---   Interactive.
+-- | Convenience function for implementing the display function of GtkDisplay.
 displayDiagram :: (a -> CairoDiagram)
                -> G.DrawWindow -> InputState Gtk -> a -> IO a
 displayDiagram f dw _ x = (renderToGtk dw $ f x) >> return x

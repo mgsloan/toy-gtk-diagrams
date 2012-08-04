@@ -8,6 +8,7 @@ module Graphics.UI.Toy.Utils where
 
 import Control.Newtype (Newtype, overF)
 import Data.Label
+import Data.Maybe (fromMaybe)
 import Data.Basis (Basis)
 import Debug.Trace (trace)
 import Diagrams.BoundingBox (boundingBox, boxExtents, getCorners, boxFit)
@@ -41,9 +42,10 @@ alignTLPreserve
                  , Ord (Basis (V b))
                  )
   => a -> b -> b
-alignTLPreserve a b = translate delta b
- where
-  delta = fst (getCorners $ boundingBox b) .-. fst (getCorners $ boundingBox a)
+alignTLPreserve a b = fromMaybe b $ do
+  (l_a, _) <- getCorners $ boundingBox a
+  (l_b, _) <- getCorners $ boundingBox b
+  return $ translate (l_b .-. l_a) b
 
 highlight c d = underlayScaled d . fc c $ square 1
 

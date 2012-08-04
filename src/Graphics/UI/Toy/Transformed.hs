@@ -78,7 +78,7 @@ type ToyThing v = Transformed (TThing v)
 
 -}
 
-$(mkNewType ''Transformed)
+$(mkNewtype ''Transformed)
 
 mkTransformed :: HasLinearMap (V a) => a -> Transformed a
 mkTransformed = Transformed . (:[]) . (mempty, )
