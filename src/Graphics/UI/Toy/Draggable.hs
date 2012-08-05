@@ -84,7 +84,7 @@ instance ( V a ~ R2, CairoDiagrammable a, Clickable a )
 
 instance ( V a ~ v, Clickable a, InnerSpace v )
       => Clickable (Draggable b a) where
-  clickInside d p = clickInside (_dragContent d) $ p .-^ _dragOffsetAcc d
+  clickInside d p = clickInside (_dragContent d) $ p .-^ get dragOffset d
 
 instance ( V a ~ v, Diagrammable b a, Enveloped a, HasLinearMap v, InnerSpace v)
       => Enveloped (Draggable b a) where
@@ -96,14 +96,19 @@ mkDraggable :: V a -> a -> Draggable b a
 mkDraggable = Draggable Nothing
 
 -- | Pure mouse handler, compatible with the type expected by "simpleMouse".
-mouseDrag (Just (True,  0)) p d | clickInside d (P $ pack p) = startDrag (pack p) d
-mouseDrag Nothing           p d                              = updateDrag (pack p) d
-mouseDrag (Just (False, 0)) p d                              = endDrag d
-mouseDrag _ _ d = d
+--   Only triggers for left mouse clicks.
+mouseDrag m v d = case m of
+  (Just (True,  0))
+    | clickInside d (P p) -> startDrag  p d
+  Nothing                 -> updateDrag p d
+  (Just (False, 0))       -> endDrag d
+  _                       -> d
+ where
+  p = pack v
 
 -- | Switches into dragging mode at the given position.
-startDrag :: V a -> Draggable b a -> Draggable b a
-startDrag p = set dragState (Just (p, p))
+startDrag :: AdditiveGroup (V a) => V a -> Draggable b a -> Draggable b a
+startDrag p = set dragState $ Just (p, p)
 
 -- | Updates the drag with a new mouse position, if the object is being
 --   dragged.  TODO: consider having a check for the input state to
@@ -127,5 +132,5 @@ dragOffset :: (AdditiveGroup (V a))
 dragOffset = lens getter setter
  where
   delta = maybe zeroV (uncurry (^-^))
-  getter   (Draggable c o _) = o ^+^ delta c
-  setter o' (Draggable c o x) = Draggable c (o' ^-^ delta c) x
+  getter    (Draggable c a _) = a ^+^ delta c
+  setter a' (Draggable c a x) = Draggable c (a' ^-^ delta c) x
