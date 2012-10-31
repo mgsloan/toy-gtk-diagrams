@@ -16,7 +16,7 @@ main = runToy $ def { animDiagram = animMach }
     = mach t 6
     # rotate (Deg $ t * 30)
     # scale 0.8
-    # translate (r2 (300, 300))
+    # translate (300 & 300)
 
   mach t 0 = leaf
   mach t d
@@ -37,4 +37,6 @@ main = runToy $ def { animDiagram = animMach }
 
   leaf = fromVertices (map p2 loop)
        # fillColor (sRGB 1.0 1.0 1.0 `withOpacity` 0.5)
+       # fillRule Winding
        # lineColor (sRGB 0.0 0.0 1.0 `withOpacity` 0.8)
+       # lw 2

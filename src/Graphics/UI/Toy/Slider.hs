@@ -31,13 +31,13 @@ import Graphics.UI.Toy.Utils
 import Prelude hiding ((.))
 import Control.Category ((.))
 import Control.Newtype (Newtype(..))
+import Data.AffineSpace.Point (Point(..))
 import Data.Basis (HasBasis(..))
 import Data.Label
 import Data.Maybe (fromJust)
 import Data.MemoTrie (HasTrie)
 import Diagrams.Backend.Cairo
 import Diagrams.Prelude
-import Graphics.Rendering.Diagrams.Points
 
 -- TODO: once decent math stuff is in place, make sliders on arbitrary paths.
 
@@ -97,7 +97,7 @@ instance (Newtype R2 (MousePos ib)) => Interactive ib (Slider b R2 a) where
 
 -- TODO: make vectorspace independent (requires polymorphic stroke)
 instance Diagrammable Cairo (CairoSlider a) where
-  diagram s = stroke (fromOffsets [get sliderLine s])
+  diagram s = stroke (fromOffsets [get sliderLine s]) # lc black # lw 2
            <> diagram (get sliderHandle' s)
 
 instance ( InnerSpace v, HasLinearMap v, OrderedField (Scalar v) )
@@ -115,7 +115,7 @@ mkSlider ivl d = Slider (ivlBij ivl) (mkDraggable zeroV d)
    where delta = t - f
 
 mkToggle :: Renderable (Path R2) b => Slider b R2 Bool
-mkToggle = Slider boolBij (mkDraggable (r2 (0, 0)) $ circle 5) $ r2 (0, 10)
+mkToggle = Slider boolBij (mkHandle 5) $ r2 (0, 10)
  where
   -- Not a real bijection...
   boolBij = Bij (> 0.5) (fromIntegral . fromEnum)

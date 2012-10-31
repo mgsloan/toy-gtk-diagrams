@@ -22,9 +22,9 @@ instance Interactive Gtk Sprite where
         + handleKey "d" ( 1,  0)
 
 instance Diagrammable Cairo Sprite where
-  diagram state = translate (pos state) $ circle 20
+  diagram state = translate (pos state) $ circle 20 # lc black # lw 2
 
 instance GtkDisplay Sprite where
   display = displayDiagram diagram
 
-main = runToy $ Sprite (r2 (100,100)) (r2 (0, 0))
+main = runToy $ Sprite (100 & 100) (0 & 0)

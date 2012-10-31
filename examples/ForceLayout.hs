@@ -12,10 +12,10 @@ import Graphics.UI.Toy.Prelude
 
 import Prelude   hiding ((.))
 import Control.Category ((.))
+import Data.AffineSpace.Point (Point(..))
 import Data.Default
 import Data.Label
 import qualified Data.Map as M
-import Graphics.Rendering.Diagrams.Points (Point(..))
 import Physics.ForceLayout
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random (newStdGen, randomRs)
@@ -38,9 +38,9 @@ main :: IO ()
 main = runToy (def :: State)
 
 instance Default State where
-  def = State e hm $ Config $ mkSlider (0, 1) handle $ r2 (0, 100)
+  def = State e hm $ Config $ mkSlider (0, 1) handle (0 & 100)
    where
-    handle = circle 5
+    handle = circle 5 # lc black # lw 2
 
     hm = M.fromList $ [ (k, mkDraggable p handle)
                       | (k, get pos -> (P p)) <- M.toList particleMap

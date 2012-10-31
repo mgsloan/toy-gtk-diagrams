@@ -18,7 +18,7 @@ Library
                      colour,
                      diagrams-lib,
                      diagrams-cairo,
-                     diagrams-core,
+                     diagrams-core >= 0.6 && < 0.7,
                      diagrams-contrib,
                      fclabels,
                      gtk,
@@ -26,7 +26,8 @@ Library
                      MemoTrie,
                      newtype,
                      newtype-th >= 0.3,
-                     vector-space
+                     vector-space,
+                     vector-space-points
   Hs-source-dirs:    src
   Exposed-Modules:
     Graphics.UI.Toy.Diagrams

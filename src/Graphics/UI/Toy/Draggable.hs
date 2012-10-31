@@ -20,7 +20,7 @@
 --
 -----------------------------------------------------------------------------
 module Graphics.UI.Toy.Draggable
-  ( Draggable(..), CairoDraggable
+  ( Draggable(..), CairoDraggable, CairoHandle
 
   -- * Lenses
   , dragState, dragOffset, dragContent
@@ -30,19 +30,19 @@ module Graphics.UI.Toy.Draggable
   , mouseDrag
 
   -- * Update
-  , mkDraggable, startDrag, updateDrag, endDrag
+  , mkDraggable, mkHandle, startDrag, updateDrag, endDrag
 
   -- * Query
   , isDragging) where
 
 import Control.Newtype (Newtype, pack, unpack, over, overF)
+import Data.AffineSpace.Point (Point(..))
 import Data.Data (Data, Typeable, Typeable2)
 import Data.Label
 import Data.Maybe (isJust)
 import Diagrams.Backend.Cairo
 import Diagrams.Prelude
 import Diagrams.TwoD.Text
-import Graphics.Rendering.Diagrams.Points
 
 import Graphics.UI.Toy.Gtk
 import Graphics.UI.Toy.Diagrams
@@ -60,8 +60,9 @@ deriving instance (Show a, Show (V a)) => Show (Draggable b a)
 deriving instance (Data a, Data (V a), Data b) => Data (Draggable b a)
 deriving instance Typeable2 Draggable
 
-
 type CairoDraggable a = Draggable Cairo a
+
+type CairoHandle = Draggable Cairo CairoDiagram
 
 type instance V (Draggable b a) = V a
 
@@ -94,6 +95,11 @@ instance ( V a ~ v, Diagrammable b a, Enveloped a, HasLinearMap v, InnerSpace v)
 -- | Creates dragging state for some object, with an initial offset.
 mkDraggable :: V a -> a -> Draggable b a
 mkDraggable = Draggable Nothing
+
+-- | Creates a draggable circle of the given radius.
+mkHandle :: (PathLike a, Transformable a, HasStyle a, V a ~ R2)
+         => Double -> Draggable b a
+mkHandle = mkDraggable zeroV . lw 2 . lc black . circle
 
 -- | Pure mouse handler, compatible with the type expected by "simpleMouse".
 --   Only triggers for left mouse clicks.

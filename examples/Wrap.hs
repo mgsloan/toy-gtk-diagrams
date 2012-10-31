@@ -25,7 +25,7 @@ import Diagrams.Layout.Wrap
 type MTC = MarkedText CursorMark
 
 data State = State { _txt :: MTC
-                   , _bnds :: Draggable Cairo (Diagram Cairo R2)
+                   , _bnds :: CairoHandle
                    }
 
 type instance V State = R2
@@ -39,7 +39,7 @@ loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do e
 
 instance Default State where
   def = State (addText cursorText (plainText loremIpsum) :: MTC)
-              (mkDraggable (r2 (50, 50)) $ circle 200)
+              (mkDraggable (r2 (50, 50)) $ circle 200 # lc black # lw 2)
 
 instance Diagrammable Cairo State where
   diagram s = r <> diaBnds

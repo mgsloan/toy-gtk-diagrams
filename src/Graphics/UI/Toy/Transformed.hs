@@ -37,12 +37,12 @@ import Control.Applicative ((<$>))
 import Control.Arrow (first, second)
 import Control.Newtype (Newtype, pack, unpack, under, over, overF)
 import Control.Newtype.TH
+import Data.AffineSpace.Point (Point(..))
 import Data.Data (Data, Typeable, Typeable1)
 import Data.Foldable (fold, foldMap)
 import Data.Label
 import Diagrams.Backend.Cairo
 import Diagrams.Prelude hiding (over, under)
-import Graphics.Rendering.Diagrams.Points
 import Debug.Trace
 
 newtype Transformed a = Transformed [(Transformation (V a), a)]
