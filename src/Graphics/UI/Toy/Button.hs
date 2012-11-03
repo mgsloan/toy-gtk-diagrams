@@ -44,10 +44,10 @@ import Graphics.UI.Toy.Utils (overM, highlight, underlayMatchExtents)
 -- TODO: callback rather than "buttonHit" state?
 
 data Button b a = Button
-  { _buttonHeld :: Bool  -- ^ Whether the mouse is currently pressing
-  , _buttonHit  :: Bool  -- ^ Whether the button was hit
+  { _buttonHeld :: Bool                     -- ^ Whether the mouse is currently pressing
+  , _buttonHit  :: Bool                     -- ^ Whether the button was hit
   , _buttonFunc :: Button b a -> Button b a -- ^ Transform the button state
-  , _buttonState :: a    -- ^ Current state
+  , _buttonState :: a                       -- ^ Current state
   }
 
 type CairoButton = Button Cairo
@@ -68,14 +68,14 @@ instance (Diagrammable b a, V a ~ R2) => Interactive ib (Button b a) where
   mouse (Just (c, 0)) i b
     | ci && c   = return
                 . set buttonHeld True
-    			$ b
+                $ b
     | not   c   = return
                 . set buttonHeld False 
                 . set buttonHit  (ci && get buttonHeld b)
                 $ b
     | otherwise = return b
    where
-   	ci = clickInside b . P . r2 $ mousePos i
+    ci = clickInside b . P . r2 $ mousePos i
     
   mouse _ _ b = return b
 

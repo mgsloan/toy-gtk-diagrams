@@ -29,6 +29,7 @@ Library
                      vector-space,
                      vector-space-points
   Hs-source-dirs:    src
+  ghc-options:       -Wall -fwarn-tabs -O2
   Exposed-Modules:
     Graphics.UI.Toy.Diagrams
     Graphics.UI.Toy.Draggable

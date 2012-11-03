@@ -14,7 +14,7 @@
 -- License     :  BSD-style (see LICENSE)
 -- Maintainer  :  mgsloan@gmail.com
 --
--- Primitive Slider UI element.
+-- Slider UI element.
 --
 -----------------------------------------------------------------------------
 module Graphics.UI.Toy.Slider 
@@ -32,19 +32,16 @@ import Prelude hiding ((.))
 import Control.Category ((.))
 import Control.Newtype (Newtype(..))
 import Data.AffineSpace.Point (Point(..))
-import Data.Basis (HasBasis(..))
 import Data.Label
-import Data.Maybe (fromJust)
-import Data.MemoTrie (HasTrie)
 import Diagrams.Backend.Cairo
 import Diagrams.Prelude
 
 -- TODO: once decent math stuff is in place, make sliders on arbitrary paths.
 
 data Slider b v a = Slider
-  { _sliderMetric :: Bijection (->) (Scalar v) a
+  { _sliderMetric  :: Bijection (->) (Scalar v) a
   , _sliderHandle' :: Draggable b (Diagram b v)
-  , _sliderLine   :: v
+  , _sliderLine    :: v
   }
 
 type CairoSlider a = Slider Cairo R2 a
@@ -72,19 +69,16 @@ sliderPos :: (AdditiveGroup v, OrderedField (Scalar v))
           => Slider b v a :-> v
 sliderPos = dragOffset . sliderHandle'
 
-roundtripUnder :: (a :-> b) -> a -> b -> b
-roundtripUnder l s v = get l $ set l v s
-
 -- Projects points onto the slider line, yielding a value in (0, 1).
 -- The other direction maps the parameter to locations.
 paramLens :: (InnerSpace v, OrderedField (Scalar v))
           => Slider b v a :-> Scalar v
 paramLens = lens getter setter
  where
-  getter s = clamp (0, 1) $ (normalized l <.> get sliderPos s) / magnitude l
-   where l = get sliderLine s
+  getter s = clamp' (0, 1) $ (normalized l <.> get sliderPos s) / magnitude l
+    where l = get sliderLine s
   setter x s = set sliderPos (lerp zeroV (get sliderLine s) x) s
-  clamp (f, t) x
+  clamp' (f, t) x
     | x < f = f
     | x > t = t
     | otherwise = x

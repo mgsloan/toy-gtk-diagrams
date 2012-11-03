@@ -4,6 +4,17 @@
            , ScopedTypeVariables
            , RankNTypes
   #-}
+-----------------------------------------------------------------------------
+-- |
+-- Module      :  Graphics.UI.Toy.Utils
+-- Copyright   :  (c) 2012 Michael Sloan 
+-- License     :  BSD-style (see the LICENSE file)
+--
+-- Maintainer  :  Michael Sloan <mgsloan@gmail.com>
+-- Stability   :  experimental
+-- Portability :  GHC only
+--
+-----------------------------------------------------------------------------
 module Graphics.UI.Toy.Utils where
 
 import Control.Newtype (Newtype, overF)
@@ -11,13 +22,24 @@ import Data.Label
 import Data.Maybe (fromMaybe)
 import Data.Basis (Basis)
 import Debug.Trace (trace)
-import Diagrams.BoundingBox (boundingBox, boxExtents, getCorners, boxFit)
 import Diagrams.Prelude hiding (trace)
 
 -- * Diagrams Utils
 
 -- These functions do a "setEnvelope (getEnvelope d)" in order to avoid the
 -- envelope computations unecessarily unioning the superimposed thing.
+
+underlayScaled, overlayScaled
+  :: ( HasLinearMap v, InnerSpace v, AdditiveGroup v
+     , Floating (Scalar v), Ord (Scalar v), Ord (Basis v), AdditiveGroup (Scalar v)
+     , Semigroup m, Monoid m )
+  => QDiagram b v m -> QDiagram b v m -> QDiagram b v m
+
+underlayMatchExtents, overlayMatchExtents
+  :: ( HasLinearMap v, InnerSpace v, AdditiveGroup v
+     , Floating (Scalar v), Ord (Scalar v), Ord (Basis v), AdditiveGroup (Scalar v)
+     , Semigroup m, Monoid m )
+  => QDiagram b v m -> (v -> QDiagram b v m) -> QDiagram b v m
 
 underlayScaled d s
   = setEnvelope (getEnvelope d)
@@ -47,6 +69,8 @@ alignTLPreserve a b = fromMaybe b $ do
   (l_b, _) <- getCorners $ boundingBox b
   return $ translate (l_b .-. l_a) b
 
+highlight :: (PathLike (QDiagram b R2 m), Monoid m, Semigroup m)
+          => Colour Double -> QDiagram b R2 m -> QDiagram b R2 m
 highlight c d = underlayScaled d . fc c $ square 1
 
 --newtype VLift = VLift (forall a. Num a => a)
@@ -68,6 +92,8 @@ firstM f = (\(x, y) -> f x >>= \x' -> return (x', y))
 secondM :: Monad m => (b -> m c) -> (a, b) -> m (a, c)
 secondM f = (\(x, y) -> f y >>= \y' -> return (x, y'))
 
-
+debug :: Show a => a -> a
 debug x = trace (show x) x
+
+debug' :: Show a => String -> a -> a
 debug' s x = trace (s ++ show x) x

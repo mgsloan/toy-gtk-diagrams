@@ -8,6 +8,12 @@
 -- Stability   :  experimental
 -- Portability :  GHC only
 --
+-- This module re-exports the "Diagrams.Prelude", along with all of the
+-- exported modules.
+--
+-- While importing this module should be discouraged in \"real\" code, it's
+-- convenient for \"toy\" code.
+--
 -----------------------------------------------------------------------------
 module Graphics.UI.Toy.Prelude
   ( module Diagrams.Prelude

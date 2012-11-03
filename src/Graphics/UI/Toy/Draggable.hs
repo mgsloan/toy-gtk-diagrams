@@ -35,14 +35,13 @@ module Graphics.UI.Toy.Draggable
   -- * Query
   , isDragging) where
 
-import Control.Newtype (Newtype, pack, unpack, over, overF)
+import Control.Newtype (Newtype, pack)
 import Data.AffineSpace.Point (Point(..))
-import Data.Data (Data, Typeable, Typeable2)
+import Data.Data (Data, Typeable2)
 import Data.Label
 import Data.Maybe (isJust)
 import Diagrams.Backend.Cairo
 import Diagrams.Prelude
-import Diagrams.TwoD.Text
 
 import Graphics.UI.Toy.Gtk
 import Graphics.UI.Toy.Diagrams
@@ -103,6 +102,9 @@ mkHandle = mkDraggable zeroV . lw 2 . lc black . circle
 
 -- | Pure mouse handler, compatible with the type expected by "simpleMouse".
 --   Only triggers for left mouse clicks.
+mouseDrag :: (Eq t, Num t, Newtype (V a) o, InnerSpace (V a), Clickable a)
+          =>       Maybe (Bool, t) -> o -> Draggable b a -> Draggable b a
+
 mouseDrag m v d = case m of
   (Just (True,  0))
     | clickInside d (P p) -> startDrag  p d
@@ -139,4 +141,4 @@ dragOffset = lens getter setter
  where
   delta = maybe zeroV (uncurry (^-^))
   getter    (Draggable c a _) = a ^+^ delta c
-  setter a' (Draggable c a x) = Draggable c (a' ^-^ delta c) x
+  setter a' (Draggable c _ x) = Draggable c (a' ^-^ delta c) x

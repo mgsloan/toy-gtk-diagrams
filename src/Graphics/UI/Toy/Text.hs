@@ -20,25 +20,19 @@
 -----------------------------------------------------------------------------
 module Graphics.UI.Toy.Text where
 
-
 import Diagrams.Prelude hiding ( trace )
 import Diagrams.TwoD.Text
 import Diagrams.Backend.Cairo ( Cairo )
 import Diagrams.Backend.Cairo.Text ( textLineBounded )
 import Control.Arrow       ( first, second, (***), (&&&) )
-import Control.Applicative ( (<$>) )
 import Control.Monad       ( msum )
-import Control.Newtype     ( Newtype(..) )
 import Data.Data           ( Data, Typeable )
-import Data.Colour.Names   ( black, white )
 import Data.Either         ( partitionEithers )
 import Data.Label
-import Data.List           ( partition, findIndices, sortBy, sort, delete, group, (\\) )
+import Data.List           ( partition, findIndices, sortBy, sort, delete, group)
 import Data.Maybe          ( catMaybes, mapMaybe, listToMaybe )
 import Data.Ord            ( comparing )
-import Debug.Trace         ( trace )
 
-import Graphics.UI.Toy.Gtk
 import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Utils ( highlight )
 
@@ -60,8 +54,6 @@ class CanBeCursor a where
   isCursor :: a -> Bool
 
 -- TODO: function to handle mark splitting
-
--- TODO: rename all m type variables to something else..
 
 class Mark a where
   type DrawState a
@@ -130,6 +122,7 @@ addText (MarkedText at ams) (MarkedText bt bms)
   rms = sortMarks $ an ++ performMerges ap bp ++ bn
 
 -- Merge overlapping marks from the two texts.
+performMerges :: (Eq m, Mark m) => [(Ivl, m)] -> [(Ivl, m)] -> [(Ivl, m)]
 performMerges []     ys = ys
 performMerges (x:xs) ys = case msum . map doMerge $ ys of
   Just (y, x') -> x' : performMerges xs (delete y ys)
@@ -159,7 +152,7 @@ drawText initial mt
 drawRec :: forall m. Mark m => DrawState m -> MarkedText m -> CairoDiagram
 drawRec st mt@(MarkedText txt [])
   = textLineBounded (drawStateStyle mt st) $ filter (not . (`elem` "\r\n")) txt
-drawRec st mt@(MarkedText txt (((fm, tm), m):xs))
+drawRec st mt@(MarkedText txt (((fm, tm), m):_))
   =   drawRec st (substrText False mt (-1, fm))
   ||| drawMark m st (substrText True mt (fm, tm))
   ||| drawRec st (substrText False mt (tm, length txt + 1))
@@ -178,9 +171,11 @@ textChunks mt
 
 -- | Given a list of slice points, and an overall length, yields a list of
 --   intervals broken at those points.
+ivlsFromSlices :: (Num a, Ord a) => a -> [a] -> [(a, a)]
 ivlsFromSlices l xs = map head . group $ zip (0 : ys) (ys ++ [l])
   where ys = sort xs
 
+textLength :: MarkedText m -> Int
 textLength = length . get mText
 
 applyEdit :: (Eq m, Mark m) => Chunk m -> MarkedText m -> MarkedText m
@@ -224,6 +219,7 @@ addMark (ivl, m) = mutateSlice
   (\(MarkedText txt ms) -> MarkedText txt $ (ivl, m) : ms) ivl
 -}
 
+addMarks :: (Eq m, Mark m) => [(Ivl, m)] -> MarkedText m -> MarkedText m
 addMarks ms t = foldr addMark t ms
 
 -- | Removes marks that match the given predicate.
@@ -243,6 +239,7 @@ filterMarks :: (Eq m, Mark m)
             => ((Ivl, m) -> Bool) -> MarkedText m -> MarkedText m
 filterMarks f = mutateMarks (\m -> if f m then Just m else Nothing)
 
+moveCursor :: CanBeCursor m => (t -> t) -> (t, m) -> (t, m)
 moveCursor f (i, x) 
   | isCursor x = (f i, x)
   | otherwise = (i, x)
@@ -277,7 +274,7 @@ instance Mark EmptyMark where
   type DrawState EmptyMark = ()
   initialDrawState _ = ()
   drawStateStyle _ _ = monoStyle
-  drawMark m _ mt = drawRec () mt
+  drawMark _ _ mt = drawRec () mt
   mergeMark _ _ = Just EmptyMark
 
 data CursorMark = CursorMark deriving (Eq, Show, Data, Typeable)
@@ -290,12 +287,12 @@ instance Mark CursorMark where
   type DrawState CursorMark = Style R2
   initialDrawState _ = monoStyle
   drawStateStyle _ s = s
-  drawMark m s mt@(MarkedText txt _)
+  drawMark _ s mt@(MarkedText txt _)
     | null txt = lineWidth 1 . lineColor black
-               . moveOriginBy (pack (-1.5, 2.0))
+               . moveOriginBy (-1.5 & 2.0)
                . setEnvelope mempty
                . stroke . pathFromTrail
-               $ Trail [Linear $ pack (0, 18)] False
+               $ Trail [Linear $ 0 & 18] False
     | otherwise = highlight black $ drawRec (applyStyle (fc white mempty) s) mt 
   mergeMark _ _ = Just CursorMark
 
@@ -327,13 +324,13 @@ instance Mark WeightMark where
     = drawRec (applyStyle (fontWeight weight mempty) s) mt
 
 -- Utils
-
-debug x = trace (show x) x
-debug' p x = trace (p ++ show x) x
-
+mapT :: (a -> b) -> (a, a) -> (b, b)
 mapT f = f *** f
 
+firstA :: Applicative m => (a -> m b) -> (a, c) -> m (b, c)
 firstA f  = raiseFstA . first f
+
+secondA :: Applicative m => (a -> m b) -> (c, a) -> m (c, b)
 secondA f = raiseSndA . second f
 
 raiseFstA :: Applicative m => (m a, t) -> m (a, t)
@@ -342,6 +339,7 @@ raiseFstA (x, y) = (,y) <$> x
 raiseSndA :: Applicative m => (t, m a) -> m (t, a)
 raiseSndA (x, y) = (x,) <$> y
 
+flipOrd :: Ordering -> Ordering
 flipOrd LT = GT
 flipOrd EQ = EQ
 flipOrd GT = LT

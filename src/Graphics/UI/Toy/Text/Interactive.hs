@@ -7,10 +7,7 @@ import Graphics.UI.Toy.Text
 
 import Control.Arrow (first, second)
 
-import Data.Colour.Names (black, yellow)
-import Data.Maybe (maybeToList)
 import Diagrams.Prelude
-import Diagrams.Backend.Cairo.Text (textLineBounded)
 
 import System.IO.Unsafe
 
@@ -31,7 +28,7 @@ instance (Eq m, Mark m, CanBeCursor m)
 
 textKeyHandler :: (Eq m, Mark m, CanBeCursor m)
                => KeyEvent -> MarkedText m -> MarkedText m
-textKeyHandler (True, e) mt = case e of
+textKeyHandler (True, ev) mt = case ev of
   Right k -> insert [k]
   Left  k -> case k of
     "Return"    -> insert "\n"
@@ -52,8 +49,6 @@ textKeyHandler (True, e) mt = case e of
   mutateCursors f = mutateMarks
                     ( \(i, m) -> if isCursor m then Just (f i, m) else Just (i, m) )
                     mt
-
-  toMaybe f x = if f x then Just x else Nothing
 
   maxIx = textLength mt
 

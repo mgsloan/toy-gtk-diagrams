@@ -66,7 +66,7 @@ instance Default State where
                 $ zip (randomRs (0, 200.0) entropy3)
                       (randomRs (0, 200.0) entropy4)
 
-uiOffset = r2 (10, 100)
+uiOffset = 10 & 100
 
 instance Interactive Gtk State where
   mouse m i s = do
@@ -91,8 +91,8 @@ update :: State -> State
 update (State e hm conf) 
   = State ( modify particles (M.intersectionWith constrain hm)
           $ ensembleStep (get (sliderValue . dampingSlider) conf) e )
-          ( M.intersectionWith update hm (get particles e) )
-          ( conf )
+          ( M.intersectionWith update hm $ get particles e )
+          conf
  where
 -- Move particle to its handle if dragged.
   constrain d p 
