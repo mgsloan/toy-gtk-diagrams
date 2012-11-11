@@ -38,17 +38,12 @@ module Graphics.UI.Toy.Diagrams
   ) where
 
 import Graphics.UI.Toy.Gtk
-import Graphics.UI.Toy.Utils
 
 import Diagrams.Prelude
 import Diagrams.Backend.Cairo
 import Diagrams.Backend.Cairo.Gtk
 
-import Control.Newtype (Newtype, unpack)
-import Control.Newtype.TH
-import Data.Default
-import qualified Data.Traversable as T
-import qualified Graphics.UI.Gtk as G
+import Graphics.UI.Gtk (DrawWindow)
 
 type CairoDiagram = Diagram Cairo R2
 
@@ -64,7 +59,7 @@ instance Diagrammable b (Diagram b v) where
 
 -- | Convenience function for implementing the display function of GtkDisplay.
 displayDiagram :: (a -> CairoDiagram)
-               -> G.DrawWindow -> InputState Gtk -> a -> IO a
+               -> DrawWindow -> InputState Gtk -> a -> IO a
 displayDiagram f dw _ x = (renderToGtk dw $ f x) >> return x
 
 

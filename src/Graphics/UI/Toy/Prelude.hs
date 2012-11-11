@@ -22,7 +22,6 @@ module Graphics.UI.Toy.Prelude
   , module Graphics.UI.Toy.Draggable
   , module Graphics.UI.Toy.Slider
   , module Graphics.UI.Toy.Text
-  , module Graphics.UI.Toy.Text.Interactive
   , module Graphics.UI.Toy.Transformed
   , Cairo
   ) where
@@ -34,5 +33,4 @@ import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Draggable
 import Graphics.UI.Toy.Slider
 import Graphics.UI.Toy.Text
-import Graphics.UI.Toy.Text.Interactive
 import Graphics.UI.Toy.Transformed

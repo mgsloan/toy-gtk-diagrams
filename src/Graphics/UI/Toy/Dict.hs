@@ -1,7 +1,7 @@
 {-# LANGUAGE MultiParamTypeClasses, FlexibleContexts, FlexibleInstances, UndecidableInstances, TypeFamilies #-}
 module Graphics.UI.Toy.Dict
   ( InteractiveDict(..), GtkDisplayDict(..), GtkInteractiveDict(..), DiagrammableDict(..)
-  , WithDict(..), Dictionary(..)
+  , WithDict(..), Dictionary(..), withDict
   , mkDisplayDict, mkSimpleInteractive
   , mkPureToy, runPureToy
   , mkMouseToy, runMouseToy
@@ -180,7 +180,7 @@ runDiagrammableToy = runToy . mkDiagrammableToy
 
 mkTraversableToy :: (T.Traversable t, Interactive Gtk a, Diagrammable Cairo a, V a ~ R2)
                  => t a -> WithDict GtkInteractiveDict (t a)
-mkTraversableToy x = WithDict x $ GtkInteractiveDict
+mkTraversableToy t = WithDict t $ GtkInteractiveDict
   (mkDisplayDict $ T.foldMapDefault (diagramFunc dict))
   (InteractiveDict
   -- TODO: or together the boolean results

@@ -40,7 +40,6 @@ Library
     Graphics.UI.Toy.Prelude
     Graphics.UI.Toy.Slider
     Graphics.UI.Toy.Text
-    Graphics.UI.Toy.Text.Interactive
     Graphics.UI.Toy.Transformed
     Graphics.UI.Toy.Utils
 

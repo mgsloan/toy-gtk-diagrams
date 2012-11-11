@@ -18,7 +18,20 @@
 -- meta-data annotations applied to particular intervals.
 --
 -----------------------------------------------------------------------------
-module Graphics.UI.Toy.Text where
+module Graphics.UI.Toy.Text
+  ( MarkedText(..), Ivl
+  , mText, mMarks
+  , emptyText, plainText
+  , textLength, getMarks, smallestEnclosing
+  , substrText, addText
+  , applyEdit, applyEdits, edit, whenMarked, mutateSlice
+  , addMark, addMarks, removeMark, mutateMarks, filterMarks, clipMarks, clearMarks
+  , drawText
+
+  , StyleState(..), monoStyle
+  , CanBeCursor(..), cursorText, moveCursor
+  , Mark(..), EmptyMark(..), CursorMark(..), SizeMark(..), SlantMark(..), WeightMark(..)
+  ) where
 
 import Diagrams.Prelude hiding ( trace )
 import Diagrams.TwoD.Text
@@ -35,6 +48,9 @@ import Data.Ord            ( comparing )
 
 import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Utils ( highlight )
+import Graphics.UI.Toy.Gtk
+
+import System.IO.Unsafe
 
 type Ivl = (Int, Int)
 
@@ -323,6 +339,54 @@ instance Mark WeightMark where
   drawMark (WeightMark weight) s mt
     = drawRec (applyStyle (fontWeight weight mempty) s) mt
 
+-------------------------------------------------------------------------------
+-- Interactive
+-------------------------------------------------------------------------------
+
+cursorText :: (Mark m, CanBeCursor m) => MarkedText m
+cursorText = MarkedText "" [((0, 0), mkCursor)]
+
+instance (Eq m, Mark m, CanBeCursor m)
+      => Interactive ib (MarkedText m) where
+  keyboard = simpleKeyboard textKeyHandler
+
+instance (Eq m, Mark m, CanBeCursor m)
+      => GtkDisplay (MarkedText m) where
+  display = displayDiagram
+          $ \mt -> scaleY (-1)
+                 $ strutY 18
+                   ===
+                  ( strutX 10 ||| alignT (diagram mt) )
+
+textKeyHandler :: (Eq m, Mark m, CanBeCursor m)
+               => KeyEvent -> MarkedText m -> MarkedText m
+textKeyHandler (True, ev) mt = case ev of
+  Right k -> insert [k]
+  Left  k -> case k of
+    "Return"    -> insert "\n"
+    "Left"      -> mutateCursors (subtract 1)
+    "Right"     -> mutateCursors (+1)
+    "Home"      -> mutateCursors (const (-maxIx, -maxIx))
+    "End"       -> mutateCursors (const (maxIx, maxIx))
+    "Delete"    -> editCursors (\(ivl, _) -> (second  (+1)  ivl, cursorText))
+    "BackSpace" -> editCursors (\(ivl, _) -> (first (+(-1)) ivl, cursorText))
+    "Escape"    -> unsafePerformIO $ (quitToy >> return mt)
+    _           -> mt
+ where
+  editCursors f = edit (whenMarked isCursor f) mt
+
+  insert s = editCursors $ second $ const (MarkedText s [((p, p), mkCursor)])
+    where p = length s
+
+  mutateCursors f = mutateMarks
+                    ( \(i, m) -> if isCursor m then Just (f i, m) else Just (i, m) )
+                    mt
+
+  maxIx = textLength mt
+
+textKeyHandler _ ts = ts
+
+
 -- Utils
 mapT :: (a -> b) -> (a, a) -> (b, b)
 mapT f = f *** f
@@ -330,14 +394,16 @@ mapT f = f *** f
 firstA :: Applicative m => (a -> m b) -> (a, c) -> m (b, c)
 firstA f  = raiseFstA . first f
 
-secondA :: Applicative m => (a -> m b) -> (c, a) -> m (c, b)
-secondA f = raiseSndA . second f
-
 raiseFstA :: Applicative m => (m a, t) -> m (a, t)
 raiseFstA (x, y) = (,y) <$> x
 
+{-
+secondA :: Applicative m => (a -> m b) -> (c, a) -> m (c, b)
+secondA f = raiseSndA . second f
+
 raiseSndA :: Applicative m => (t, m a) -> m (t, a)
 raiseSndA (x, y) = (x,) <$> y
+-}
 
 flipOrd :: Ordering -> Ordering
 flipOrd LT = GT
@@ -352,6 +418,7 @@ ivlIntersect (f1, t1) (f2, t2)
   | f1 >= t2 = Nothing
   | otherwise = Just (max f1 f2, min t1 t2)
 
+{-
 ivlIntersectInc :: Ivl -> Ivl -> Maybe Ivl
 ivlIntersectInc (f1, t1) (f2, t2)
   | f2 > t1 = Nothing
@@ -364,6 +431,7 @@ ivlOverlaps a@(f1, t1) b@(f2, t2)
  || ivlContains a t2
  || ivlContains b f1
  || ivlContains b t1
+-}
 
 ivlContains :: Ivl -> Int -> Bool
 ivlContains (f, t) x = f <= x && x <= t
@@ -383,5 +451,7 @@ ivlMaybeUnion a@(f1, t1) b@(f2, t2)
 ivlSlices :: Ivl -> [Int]
 ivlSlices (a, b) = [a, b]
 
+{-
 ivlOffset :: Int -> Ivl -> Ivl
 ivlOffset x (a, b) = (a + x, b + x)
+-}

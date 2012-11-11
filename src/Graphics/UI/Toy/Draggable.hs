@@ -23,7 +23,7 @@ module Graphics.UI.Toy.Draggable
   ( Draggable(..), CairoDraggable, CairoHandle
 
   -- * Lenses
-  , dragState, dragOffset, dragContent
+  , dragState, dragStart, dragOffset, dragContent
 
   -- * Interaction with mouse
   -- | Starts drag when mouse 1 (left) is pressed, and ends when released.
@@ -50,7 +50,7 @@ import Graphics.UI.Toy.Diagrams
 --   process.
 data Draggable b a = Draggable 
   { _dragState :: Maybe (V a, V a)
-  , _dragOffsetAcc :: V a
+  , _dragStart :: V a
   , _dragContent :: a
   }
 
