@@ -25,7 +25,7 @@ instance Interactive Gtk Animator where
     return $ (Animator 0 (Just s) d, True)
 
   tick _ (Animator _ (Just s) d) = do
-    t' <- debug . realToFrac . (`diffUTCTime` s) <$> getCurrentTime
+    t' <- realToFrac . (`diffUTCTime` s) <$> getCurrentTime
     return (Animator t' (Just s) d, True)
 
 instance GtkDisplay Animator where

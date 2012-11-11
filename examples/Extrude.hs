@@ -16,6 +16,7 @@ import Data.AffineSpace.Point (Point(..))
 import Diagrams.TwoD.Combinators
 import Diagrams.Combinators
 
+--newtype State = State (Transformed (Either CairoHandle (Slider))
 newtype State = State CairoHandle
   deriving (Interactive Gtk)
 

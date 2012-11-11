@@ -16,6 +16,7 @@ Library
   Build-Depends:     base,
                      containers,
                      colour,
+                     data-default,
                      diagrams-lib,
                      diagrams-cairo,
                      diagrams-core >= 0.6 && < 0.7,
@@ -32,6 +33,7 @@ Library
   ghc-options:       -Wall -fwarn-tabs -O2
   Exposed-Modules:
     Graphics.UI.Toy.Diagrams
+    Graphics.UI.Toy.Dict
     Graphics.UI.Toy.Draggable
 --    Graphics.UI.Toy.Button
 --    Graphics.UI.Toy.Generic
@@ -41,3 +43,4 @@ Library
     Graphics.UI.Toy.Text.Interactive
     Graphics.UI.Toy.Transformed
     Graphics.UI.Toy.Utils
+
