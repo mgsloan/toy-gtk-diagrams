@@ -12,7 +12,6 @@ Stability:           experimental
 Build-Type:          Simple
 
 Library
-  Extensions:        TupleSections
   Build-Depends:     base,
                      containers,
                      colour,
@@ -36,10 +35,7 @@ Library
     Graphics.UI.Toy.Dict
     Graphics.UI.Toy.Draggable
 --    Graphics.UI.Toy.Button
---    Graphics.UI.Toy.Generic
     Graphics.UI.Toy.Prelude
     Graphics.UI.Toy.Slider
-    Graphics.UI.Toy.Text
     Graphics.UI.Toy.Transformed
     Graphics.UI.Toy.Utils
-
