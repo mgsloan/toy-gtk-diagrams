@@ -17,4 +17,4 @@ main = runToy (def :: State)
 instance Default State where
   def = sli ||| sli ||| sli ||| sli ||| sli ||| sli
    where
-    sli = mkTransformed $ mkSlider (0, 1) (circle 5 # lc black # lw 2) (r2 (0, 100))
+    sli = mkTransformed mkDefaultSlider

@@ -20,7 +20,7 @@ import Physics.ForceLayout
 import System.IO.Unsafe (unsafePerformIO)
 import System.Random (newStdGen, randomRs)
 
-data State = State (Ensemble R2) (M.Map PID (Draggable Cairo CairoDiagram)) Config
+data State = State (Ensemble R2) (M.Map PID (Draggable CairoDiagram)) Config
 
 config :: State :-> Config
 config = lens (\(State _ _ c) -> c) (\c (State a b _) -> State a b c)
@@ -38,7 +38,7 @@ main :: IO ()
 main = runToy (def :: State)
 
 instance Default State where
-  def = State e hm $ Config $ mkSlider (0, 1) handle (0 & 100)
+  def = State e hm $ Config mkDefaultSlider
    where
     handle = circle 5 # lc black # lw 2
 
