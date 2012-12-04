@@ -63,13 +63,13 @@ instance HasLinearMap v => Clickable (Diagram b v) where
 
 type CairoDiagram = Diagram Cairo R2
 
-type CairoDiagrammable a = (Diagrammable Cairo a, V a ~ R2)
+type CairoDiagrammable a = Diagrammable Cairo R2 a
 
 -- | Typeclass for things that have a default way of being displayed as a diagram.
-class Diagrammable b a where
-  diagram :: a -> Diagram b (V a)
+class Diagrammable b v a where
+  diagram :: a -> Diagram b v
 
-instance Diagrammable b (Diagram b v) where
+instance Diagrammable b v (Diagram b v) where
   diagram = id
 
 -- | Convenience function for implementing the display function of 'GtkDisplay'.

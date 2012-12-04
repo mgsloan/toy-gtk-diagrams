@@ -6,7 +6,7 @@
            , ViewPatterns
   #-}
 
-module Toys.ForceLayout where
+module Examples.ForceLayout where
 
 import Graphics.UI.Toy.Prelude
 
@@ -79,7 +79,7 @@ instance Interactive Gtk State where
   
   keyboard = handleKeys escapeKeyHandler
 
-instance Diagrammable Cairo State where
+instance Diagrammable Cairo R2 State where
   diagram (State e hm conf)
     = (mconcat . map diagram $ M.elems hm)
     <> translate uiOffset (diagram $ get dampingSlider conf)

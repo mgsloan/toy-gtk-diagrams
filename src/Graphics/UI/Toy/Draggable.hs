@@ -83,9 +83,9 @@ type instance V (Draggable a) = V a
 
 $(mkLabels [''Draggable])
 
-instance ( V a ~ v, HasLinearMap v, InnerSpace v, OrderedField (Scalar v)
-         , Diagrammable b a )
-        => Diagrammable b (Draggable a) where
+instance ( v ~ V a, HasLinearMap v, InnerSpace v, OrderedField (Scalar v)
+         , Diagrammable b v a )
+        => Diagrammable b v (Draggable a) where
   diagram d@(Draggable _ _ a)
     = translate (get dragOffset d) $ diagram a
 

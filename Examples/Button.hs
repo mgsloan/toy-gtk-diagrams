@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances, TypeSynonymInstances #-}
-module Toys.Button where
+module Examples.Button where
 
 import Data.Default
 import Graphics.UI.Toy.Prelude

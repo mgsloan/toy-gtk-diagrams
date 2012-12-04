@@ -1,16 +1,17 @@
 {-# LANGUAGE TypeFamilies, MultiParamTypeClasses #-}
 -- Ported from gloss machinima
+module Examples.Machinima where
 import Graphics.UI.Toy.Prelude
 import Data.Colour.SRGB (sRGB)
 import Data.Default
-import Animator
 
-data Machinima = Machinima Double
-
-type instance V Machinima = R2
+import Examples.Animator
 
 main :: IO ()
-main = runToy $ def { animDiagram = animMach }
+main = runToy initialState
+
+initialState :: Animator
+initialState = def { animDiagram = animMach }
  where
   animMach t
     = mach t 6

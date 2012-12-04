@@ -109,7 +109,7 @@ instance (Newtype R2 (MousePos ib)) => Interactive ib (Slider b R2 a) where
 
 -- TODO: make vectorspace independent (requires polymorphic stroke)
 
-instance Diagrammable Cairo (CairoSlider a) where
+instance Diagrammable Cairo R2 (CairoSlider a) where
   diagram s = stroke (fromOffsets [get sliderLine s]) # blackLined
            <> diagram (get sliderHandle' s)
 

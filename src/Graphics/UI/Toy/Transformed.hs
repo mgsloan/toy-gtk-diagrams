@@ -42,7 +42,7 @@ import Diagrams.Prelude hiding (over, under)
 import Graphics.UI.Toy.Gtk
   ( Gtk, GtkDisplay(..), Interactive(..), InputState, mousePos )
 import Graphics.UI.Toy.Diagrams
-  ( Diagrammable(..), Clickable(..), displayDiagram )
+  ( Diagrammable(..), CairoDiagrammable, Clickable(..), displayDiagram )
 
 
 -- | @'Transformed' a@ is like @[a]@, except that each element is stored with a
@@ -87,8 +87,8 @@ instance HasStyle a => HasStyle (Transformed a) where
   applyStyle s = Transformed `over` map (second $ applyStyle s)
 
 instance ( v ~ V a, HasLinearMap v, InnerSpace v, OrderedField (Scalar v)
-         , Diagrammable Cairo a)
-        => Diagrammable Cairo (Transformed a) where
+         , Diagrammable b v a)
+        => Diagrammable b v (Transformed a) where
   diagram = foldMap (\(t, x) -> transform t $ diagram x) . unpack
 
 instance ( Enveloped a, HasLinearMap (V a) )
@@ -112,7 +112,7 @@ overM :: (Monad m, Functor m, Newtype n' o', Newtype n o)
       => (o -> n) -> (o -> m o') -> n -> m n'
 overM x f = (x `overF` (>>= f)) . return
 
-instance ( Interactive Gtk a, Diagrammable Cairo a, V a ~ R2 )
+instance ( Interactive Gtk a, CairoDiagrammable a, V a ~ R2 )
       => GtkDisplay (Transformed a) where
   display dw i = displayDiagram diagram dw i
 

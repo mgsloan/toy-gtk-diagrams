@@ -4,7 +4,7 @@
            , MultiParamTypeClasses
   #-}
 -- | Demonstrates extrude: https://github.com/mgsloan/diagrams-lib/tree/extrude
-module Toys.Extrude where
+module Examples.Extrude where
 
 import Data.Default
 import Data.Label
@@ -28,7 +28,7 @@ main = runToy (def :: State)
 instance Default State where
   def = State . set dragOffset (r2 (100, 100)) $ mkHandle 5
 
-instance Diagrammable Cairo State where
+instance Diagrammable Cairo R2 State where
   diagram (State h)
       = translate o (runEnvelopeTest d)
      <> diagram h

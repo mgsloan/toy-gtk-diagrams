@@ -2,7 +2,7 @@
     GeneralizedNewtypeDeriving
   , TypeFamilies
   #-}
-module Toys.Handles where
+module Examples.Handles where
 
 import Data.Default
 import Data.Label

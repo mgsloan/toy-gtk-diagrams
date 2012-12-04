@@ -1,15 +1,16 @@
 {-# LANGUAGE MultiParamTypeClasses, TypeFamilies #-}
+module Examples.KeyMove where
 
 import Graphics.UI.Toy.Prelude
 
-data Sprite = Sprite {
+data State = State {
   pos, vel :: R2
 }
 
-type instance V Sprite = R2
+type instance V State = R2
 
-instance Interactive Gtk Sprite where
-  tick input state = return (Sprite pos' vel', True)
+instance Interactive Gtk State where
+  tick input state = return (State pos' vel', True)
    where
     pos' = pos state       + vel' 
     vel' = vel state * 0.9 + acc
@@ -21,10 +22,10 @@ instance Interactive Gtk Sprite where
         + handleKey "s" ( 0,  1)
         + handleKey "d" ( 1,  0)
 
-instance Diagrammable Cairo Sprite where
+instance Diagrammable Cairo R2 State where
   diagram state = translate (pos state) $ circle 20 # lc black # lw 2
 
-instance GtkDisplay Sprite where
+instance GtkDisplay State where
   display = displayDiagram diagram
 
-main = runToy $ Sprite (100 & 100) (0 & 0)
+main = runToy $ State (100 & 100) (0 & 0)

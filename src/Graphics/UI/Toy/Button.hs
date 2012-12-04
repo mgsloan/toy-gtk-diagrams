@@ -22,7 +22,7 @@
 --
 -----------------------------------------------------------------------------
 module Graphics.UI.Toy.Button
-  ( Button(..)
+  ( Button(..), CairoButton
  
   -- * Lenses
   , buttonHeld, buttonHit, buttonDiagram
@@ -100,7 +100,7 @@ instance ( Newtype v (MousePos ib)
     
   mouse _ _ b = return b
 
-instance Diagrammable b (Button b v) where
+instance Diagrammable b v (Button b v) where
   diagram x = get buttonDiagram x $ get buttonHeld x
 
 instance ( InnerSpace v, HasLinearMap v, OrderedField (Scalar v)

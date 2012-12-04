@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies, MultiParamTypeClasses #-}
 
-module Animator where
+module Examples.Animator where
 
 import Graphics.UI.Toy.Prelude
 
@@ -31,5 +31,5 @@ instance Interactive Gtk Animator where
 instance GtkDisplay Animator where
   display = displayDiagram diagram
 
-instance Diagrammable Cairo Animator where
+instance Diagrammable Cairo R2 Animator where
   diagram (Animator t _ f) = f t

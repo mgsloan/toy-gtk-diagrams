@@ -30,9 +30,6 @@ module Graphics.UI.Toy.Dict
 -- * Interactive Dictionary
   , InteractiveDict(..), mkInteractiveDict
 
--- * GtkDisplay Dictionary
-  , GtkDisplayDict(..), mkDisplayDict
-
 -- * Diagrammable Dictionary
   , DiagrammableDict(..)
 
@@ -48,7 +45,7 @@ module Graphics.UI.Toy.Dict
 import Control.Arrow          ( first )
 import Data.Default           ( Default(..) )
 import Data.Traversable       ( Traversable(..), foldMapDefault )
-import Diagrams.Backend.Cairo (Cairo)
+import Diagrams.Backend.Cairo ( Cairo )
 import Graphics.UI.Gtk        ( DrawWindow )
 
 import Diagrams.Prelude
@@ -60,8 +57,9 @@ import Diagrams.Prelude
 import Graphics.UI.Toy.Gtk
   ( Gtk, GtkDisplay(..), Interactive(..), InputState, MousePos, MouseEvent, KeyEvent
   , runToy, mousePos, keyHeld, simpleMouse, simpleKeyboard )
+
 import Graphics.UI.Toy.Diagrams
-  ( Diagrammable(..), Clickable(..), displayDiagram
+  ( Diagrammable(..), Clickable(..), defaultDisplay
   , CairoDiagram, CairoDiagrammable)
 
 
@@ -103,6 +101,9 @@ instance (Transformable a, HasLinearMap (V a))
 
 instance Clickable a => Clickable (WithDict d a) where
   clickInside (WithDict x _) = clickInside x
+
+instance (CairoDiagrammable (WithDict d a)) => GtkDisplay (WithDict d a) where
+  display = defaultDisplay
 
 -- | An instance of 'Dictionary' provides a 'dict', populated from an instance
 --   of the actual typeclass.  In other words, 
@@ -155,44 +156,22 @@ mkInteractiveDict tf mf kf = InteractiveDict
 
 
 -------------------------------------------------------------------------------
--- GtkDisplay Dictionary
--------------------------------------------------------------------------------
-
--- | @'GtkDisplayDict' a@ wraps all of the methods needed to make an instance of
---   @'GtkDisplay' a@.
-data GtkDisplayDict a = GtkDisplayDict
-  { displayFunc :: DrawWindow -> InputState Gtk -> a -> IO a }
-
-instance GtkDisplay a => Dictionary (GtkDisplayDict a) where
-  dict = GtkDisplayDict display
-
-instance GtkDisplay (WithDict GtkDisplayDict a) where
-  display  w i (WithDict x d) = fmap (`WithDict` d) $ displayFunc  d w i x
-
-instance Default (GtkDisplayDict a) where
-  def = GtkDisplayDict $ const $ const return
-
--- | @'mkDisplayDict' f@ takes a function, @f@, that transforms the state to a
---   diagram and yields an implementation of @GtkDisplayDict a@ based on it.
-mkDisplayDict :: (a -> CairoDiagram) -> GtkDisplayDict a
-mkDisplayDict = GtkDisplayDict . displayDiagram
-
-
--------------------------------------------------------------------------------
 -- Diagrammable Dictionary
 -------------------------------------------------------------------------------
 
--- | @'DiagrammableDict' b a@ wraps all of the methods needed to make an
---   instance of @'Diagrammable' b a@.
-data DiagrammableDict b a = DiagrammableDict
-  { diagramFunc :: a -> Diagram b (V a) }
+-- | @'DiagrammableDict' b v a@ wraps all of the methods needed to make an
+--   instance of @'Diagrammable' b v a@.
+data DiagrammableDict b v a = DiagrammableDict
+  { diagramFunc :: a -> Diagram b v }
 
-instance Diagrammable b a => Dictionary (DiagrammableDict b a) where
+type CairoDiagrammableDict a = DiagrammableDict Cairo R2 a
+
+instance Diagrammable b v a => Dictionary (DiagrammableDict b v a) where
   dict = DiagrammableDict diagram
 
-instance ( InnerSpace (V a), HasLinearMap (V a)
-         , AdditiveGroup (Scalar (V a)), Ord (Scalar (V a)), Floating (Scalar (V a)) )
-      => Default (DiagrammableDict b a) where
+instance ( InnerSpace v, HasLinearMap v
+         , AdditiveGroup (Scalar v), Ord (Scalar v), Floating (Scalar v) )
+      => Default (DiagrammableDict b v a) where
   def = DiagrammableDict $ const mempty
 
 
@@ -200,34 +179,39 @@ instance ( InnerSpace (V a), HasLinearMap (V a)
 -- GtkInteractive Dictionary
 -------------------------------------------------------------------------------
 
--- | @'GtkInteractiveDict' a@ is related to the constraint synonym:
+-- | @'GtkInteractiveDict' a@ ought to be related to the constraint synonym:
 --
 --   @type 'GtkInteractive' a = (Interactive Gtk a, GtkDisplay a)@
 -- 
---   Correspondingly, this contains a @'GtkDisplayDict' a@ and
---   @'InteractiveDict' 'Gtk' a@.  With these together, we have all of the
---   functions necessary to run a toy.  @'WithDict' 'GtkInteractiveDict' a@ is
---   a good type to describe toys that construct their implementation at
---   runtime.
+--   However, since there is no @GtkDisplayDict@, its functionality is instead
+--   mostly provided by 'DiagrammableDict'.  This also allows
+--   'GtkInteractiveDict' to be more useful, as they can be combined and used
+--   with 'Transformed'.
+--
+--   So, this contains a @'GtkDisplayDict' a@ and @'InteractiveDict' 'Gtk' a@.
+--   With these together, we have all of the functions necessary to describe a
+--   diagrams toy.  @'WithDict' 'GtkInteractiveDict' a@ is a good type to
+--   describe toys that construct their implementation at runtime.
 data GtkInteractiveDict a = GtkInteractiveDict
-  { gtkDisplayDict :: GtkDisplayDict a
+  { diagrammableDict :: CairoDiagrammableDict a
   , interactiveDict :: InteractiveDict Gtk a
   }
 
-instance (Interactive Gtk a, GtkDisplay a) => Dictionary (GtkInteractiveDict a) where
+instance (Interactive Gtk a, CairoDiagrammable a) => Dictionary (GtkInteractiveDict a) where
   dict = GtkInteractiveDict dict dict
 
-instance Default (GtkInteractiveDict a) where
+instance ( InnerSpace (V a), HasLinearMap (V a)
+         , AdditiveGroup (Scalar (V a)), Ord (Scalar (V a)), Floating (Scalar (V a)) )
+      => Default (GtkInteractiveDict a) where
   def = GtkInteractiveDict def def
 
 instance Interactive Gtk (WithDict GtkInteractiveDict a) where
   tick       i (WithDict x d) = fmap (first (`WithDict` d)) $ tickFunc     (interactiveDict d)   i x
-  mouse    m i (WithDict x d) = fmap (`WithDict` d)         $ mouseFunc    (interactiveDict d) m i x
-  keyboard k i (WithDict x d) = fmap (`WithDict` d)         $ keyboardFunc (interactiveDict d) k i x
+  mouse    m i (WithDict x d) = fmap        (`WithDict` d)  $ mouseFunc    (interactiveDict d) m i x
+  keyboard k i (WithDict x d) = fmap        (`WithDict` d)  $ keyboardFunc (interactiveDict d) k i x
 
-instance GtkDisplay      (WithDict GtkInteractiveDict a) where
-  display  w i (WithDict x d) = fmap (`WithDict` d) $ displayFunc  (gtkDisplayDict d) w i x
-
+instance Diagrammable Cairo R2 (WithDict GtkInteractiveDict a) where
+  diagram (WithDict x d) = diagramFunc (diagrammableDict d) x
 
 -- | @'mkPureToyDict'@ takes all of the parameters of @'mkInteractiveDict'@, with
 --   an additional function to transform the state to a diagram.  The parameters
@@ -239,7 +223,7 @@ mkPureToyDict
   -> (KeyEvent                       -> a -> a)
   -> GtkInteractiveDict a
 mkPureToyDict df tf mf kf = GtkInteractiveDict
-  (mkDisplayDict df)
+  (DiagrammableDict df)
   (mkInteractiveDict tf mf kf)
 
 -- | @'runPureToy'@ takes the same parameters as 'mkPureToyDict', but also wraps
@@ -260,7 +244,7 @@ mkMouseToyDict
   -> (Bool -> MousePos Gtk -> a -> a)
   -> GtkInteractiveDict a
 mkMouseToyDict df mf = GtkInteractiveDict
-  (mkDisplayDict df)
+  (DiagrammableDict df)
   (InteractiveDict
     (\_ x -> return (x, False))
     (\_ i x -> return $ mf (keyHeld "Mouse1" i || keyHeld "Mouse2" i) (mousePos i) x)
@@ -283,14 +267,14 @@ runSimpleToy f = runMouseToy f (\_ p _ -> p) (0, 0)
 
 -- | 'mkDiagrammableToyDict' yields a @'GtkInteractiveDict'@ for any type that is
 --   'Diagrammable' and 'Interactive'.
-mkDiagrammableToyDict :: (Interactive Gtk a, Diagrammable Cairo a, V a ~ R2)
+mkDiagrammableToyDict :: (Interactive Gtk a, Diagrammable Cairo R2 a)
                       => GtkInteractiveDict a
-mkDiagrammableToyDict = GtkInteractiveDict (mkDisplayDict $ diagramFunc dict) dict
+mkDiagrammableToyDict = GtkInteractiveDict (DiagrammableDict $ diagramFunc dict) dict
 
 -- | @'runDiagrammableToy' x@ runs any state that is 'CairoDiagrammable' and
 --   @'Interactive' 'Gtk'@.  The first argument is the initial state, which
 --   gets run with ('WithDict') the results of 'mkDiagrammableToyDict'.
-runDiagrammableToy :: (Interactive Gtk a, Diagrammable Cairo a, V a ~ R2)
+runDiagrammableToy :: (Interactive Gtk a, Diagrammable Cairo R2 a)
                    => a -> IO ()
 runDiagrammableToy x = runToy $ x `WithDict` mkDiagrammableToyDict
 
@@ -299,10 +283,10 @@ runDiagrammableToy x = runToy $ x `WithDict` mkDiagrammableToyDict
 --   dictionary implements these such that every subcomponent receives all
 --   'tick', 'mouse', 'keyboard', and 'diagram' call.  The resulting
 --   'CairoDiagram's are merged together via '(<>)'
-mkTraversableToyDict :: (Traversable t, Interactive Gtk a, CairoDiagrammable a, V a ~ R2)
+mkTraversableToyDict :: (Traversable t, Interactive Gtk a, CairoDiagrammable a)
                      => GtkInteractiveDict (t a)
 mkTraversableToyDict = GtkInteractiveDict
-  (mkDisplayDict . foldMapDefault $ diagramFunc dict)
+  (DiagrammableDict . foldMapDefault $ diagramFunc dict)
   (InteractiveDict
   -- TODO: or together the boolean results
     { tickFunc     = \  i x -> liftA (, True) $ traverse (liftA fst . tick i) x
@@ -313,6 +297,6 @@ mkTraversableToyDict = GtkInteractiveDict
 -- | @'runTraversableToy'@ runs any @'Traversable'@ of interactive, diagrammable
 --   elements.  The first argument is the initial state, which gets run with
 --   ('WithDict') the results of 'mkTraversableToyDict'.
-runTraversableToy :: (Traversable t, Interactive Gtk a, Diagrammable Cairo a, V a ~ R2)
+runTraversableToy :: (Traversable t, Interactive Gtk a, CairoDiagrammable a)
                   => t a -> IO ()
 runTraversableToy x = runToy $ x `WithDict` mkTraversableToyDict
