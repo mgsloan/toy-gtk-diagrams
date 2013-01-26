@@ -15,7 +15,7 @@ initialState = def { animDiagram = animMach }
  where
   animMach t
     = mach t 6
-    # rotate (Deg $ t * 30)
+    # rotate (Deg $ t * 15)
     # scale 0.8
     # translate (300 & 300)
 
@@ -24,10 +24,10 @@ initialState = def { animDiagram = animMach }
     = mconcat
     [ leaf
     , rec 
-      # rotate    (Deg $ 90 + t * 30)
+      # rotate    (Deg $ 90 + t * 15)
       # translate (r2 (0, -100))
     , rec
-      # rotate    (Deg $ 90 - t * 30)
+      # rotate    (Deg $ 90 - t * 15)
       # scale     0.8
       # translate (r2 (0, 100))
     ]
