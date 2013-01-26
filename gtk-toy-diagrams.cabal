@@ -20,6 +20,7 @@ Library
                      diagrams-cairo,
                      diagrams-core >= 0.6 && < 0.7,
                      diagrams-contrib,
+                     diagrams-gtk,
                      fclabels,
                      gtk,
                      gtk-toy,

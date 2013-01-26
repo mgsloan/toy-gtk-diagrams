@@ -34,14 +34,14 @@ module Graphics.UI.Toy.Diagrams
   , blackLined, monoStyle, underlayScaled, overlayScaled, underlayWithExtents, overlayWithExtents
   ) where
 
-import Data.Basis                 ( Basis )
-import Data.Maybe                 ( fromMaybe )
-import Diagrams.Backend.Cairo     ( Cairo )
-import Diagrams.Backend.Cairo.Gtk ( renderToGtk )
+import Data.Basis             ( Basis )
+import Data.Maybe             ( fromMaybe )
+import Diagrams.Backend.Cairo ( Cairo )
+import Diagrams.Backend.Gtk   ( renderToGtk )
 import Diagrams.Prelude
 
-import Graphics.UI.Gtk            ( DrawWindow )
-import Graphics.UI.Toy.Gtk        ( Gtk, InputState )
+import Graphics.UI.Gtk        ( DrawWindow )
+import Graphics.UI.Toy.Gtk    ( Gtk, InputState )
 
 
 -- | Clickable things have some concept of which positions are significant when
