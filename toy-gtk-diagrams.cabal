@@ -1,5 +1,5 @@
-Name:                gtk-toy-diagrams
-Version:             0.2.0
+Name:                toy-gtk-diagrams
+Version:             0.3.0
 Cabal-Version:       >= 1.8
 Synopsis:            Utility functions for using diagrams with gtk-toy.
 Category:            Graphics, GUI
@@ -10,6 +10,9 @@ Author:              Michael Sloan
 Maintainer:          Michael Sloan <mgsloan at gmail>
 Stability:           experimental
 Build-Type:          Simple
+Source-repository head
+  type:              git
+  location:          git://github.com/mgsloan/toy-gtk-diagrams.git
 
 Library
   Build-Depends:     base,
@@ -23,19 +26,17 @@ Library
                      diagrams-gtk,
                      fclabels,
                      gtk,
-                     gtk-toy,
                      MemoTrie,
                      newtype,
                      newtype-th >= 0.3,
+                     toy-interface >= 0.3 && < 0.4,
+                     toy-gtk       >= 0.3 && < 0.4,
+                     toy-diagrams  >= 0.3 && < 0.4,
                      vector-space,
                      vector-space-points
   Hs-source-dirs:    src
   ghc-options:       -Wall -fwarn-tabs -O2
   Exposed-Modules:
-    Graphics.UI.Toy.Diagrams
-    Graphics.UI.Toy.Dict
-    Graphics.UI.Toy.Draggable
-    Graphics.UI.Toy.Button
-    Graphics.UI.Toy.Prelude
-    Graphics.UI.Toy.Slider
-    Graphics.UI.Toy.Transformed
+    Graphics.UI.Toy.Gtk.Diagrams
+    Graphics.UI.Toy.Gtk.Dict
+    Graphics.UI.Toy.Gtk.Prelude
