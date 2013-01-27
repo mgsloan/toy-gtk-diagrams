@@ -7,6 +7,8 @@
 --
 -- Convenient way of making manipulable things.
 --
+-- THIS MODULE IS CURRENTLY WIP - DOESN'T WORK YET.
+--
 -----------------------------------------------------------------------------
 
 import Control.Applicative ((<$>))
