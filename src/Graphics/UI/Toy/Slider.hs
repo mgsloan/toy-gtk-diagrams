@@ -156,3 +156,10 @@ paramLens = lens getter setter
 sliderPos :: (AdditiveGroup v, OrderedField (Scalar v))
           => Slider b v a :-> v
 sliderPos = dragOffset . sliderHandle'
+
+{- Fancier slider handle, particularly if part can be under the line:
+let { p1 = arc (Deg 0) (Deg 360) # scaleX 5 # scaleY 4
+    ; p2 = arc (Deg 0) (Deg 360) # scaleX 3 # scaleY 2 # translateY (-0.5)
+    }
+  in (p1 <> p2) # stroke # fillRule EvenOdd # fc black # lw 0.0 # lc black
+-}

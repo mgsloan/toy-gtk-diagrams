@@ -30,14 +30,14 @@
 
 module Graphics.UI.Toy.Transformed ( Transformed(..), mkTransformed ) where
 
-import Control.Arrow          ( first, second )
-import Control.Newtype        ( Newtype, pack, unpack, under, over, overF )
-import Control.Newtype.TH     ( mkNewtype )
-import Data.AffineSpace.Point ( Point(..) )
-import Data.Data              ( Data, Typeable1 )
-import Data.Foldable          ( foldMap )
-import Diagrams.Backend.Cairo ( Cairo )
-import Diagrams.Prelude hiding (over, under)
+import Control.Arrow           ( first, second )
+import Control.Newtype         ( Newtype, pack, unpack, under, over, overF )
+import Control.Newtype.TH      ( mkNewtype )
+import Data.AffineSpace.Point  ( Point(..) )
+import Data.Data               ( Data, Typeable1 )
+import Data.Foldable           ( foldMap )
+import Diagrams.Backend.Cairo  ( Cairo )
+import Diagrams.Prelude hiding ( over, under )
 
 import Graphics.UI.Toy.Gtk
   ( Gtk, GtkDisplay(..), Interactive(..), InputState, mousePos )

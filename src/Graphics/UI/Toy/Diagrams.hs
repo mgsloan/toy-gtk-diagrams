@@ -52,10 +52,9 @@ import Graphics.UI.Toy.Gtk    ( Gtk, InputState )
 class Clickable a where
   clickInside :: a -> Point (V a) -> Bool
 
-{- TODO: GHC bug?
-  default clickInside :: forall a b. (HasLinearMap (V a), Diagrammable b a) => a -> Point (V a) -> Bool
+  default clickInside :: forall a b. (HasLinearMap (V a), Diagrammable b a)
+                      => a -> Point (V a) -> Bool
   clickInside x = clickInside (diagram x :: Diagram b (V a))
--}
 
 instance HasLinearMap v => Clickable (Diagram b v) where
   clickInside d = getAny . runQuery (query d)
