@@ -1,8 +1,8 @@
-{-# LANGUAGE FlexibleContexts, UndecidableInstances #-}
+{-# LANGUAGE FlexibleContexts, UndecidableInstances, ConstraintKinds #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.UI.Toy.Gtk.Dict
--- Copyright   :  (c) 2013 Michael Sloan 
+-- Copyright   :  (c) 2013 Michael Sloan
 -- License     :  BSD-style (see the LICENSE file)
 --
 -- Maintainer  :  Michael Sloan <mgsloan@gmail.com>
@@ -43,12 +43,14 @@ runPureToy
   -> a -> IO ()
 runPureToy df tf mf kf x = runToy $ x `WithDict` mkPureToyDict df tf mf kf
 
+{- FIXME: Temporarily disabled.
+
 -- | 'runSimpleToy' is a convenient way to run an interactive diagram from just
 --   a function from mouse position to @'CairoDiagram'@. Quite useful for ghci.
 --
 --   @ runSimpleToy f = runMouseToy f (\_ p _ -> p) (0, 0) @
 runSimpleToy :: ((Double, Double) -> QDiagram b R2 q) -> IO ()
-runSimpleToy f = runMouseToy f (\_ p _ -> p) (0, 0)
+runSimpleToy f = runMouseToy f (\_ (x, y) _ -> x & y) $ 0 & 0
 
 -- | @'runMouseToy'@ takes the same parameters as 'mkMouseToyDict', but also wraps
 --   it using 'WithDict', and runs it.  Useful for ghci.
@@ -69,6 +71,9 @@ runDiagrammableToy x = runToy $ x `WithDict` mkDiagrammableToyDict
 -- | @'runTraversableToy'@ runs any @'Traversable'@ of interactive, diagrammable
 --   elements.  The first argument is the initial state, which gets run with
 --   ('WithDict') the results of 'mkTraversableToyDict'.
-runTraversableToy :: (Traversable t, Interactive Gtk a, Diagrammable Cairo R2 q a)
+runTraversableToy :: (Traversable t, Interactive Gtk a, Diagrammable Cairo R2 q a
+                     , HasLinearMap (V a), OrderedField (Scalar (V a)))
                   => t a -> IO ()
 runTraversableToy x = runToy $ x `WithDict` mkTraversableToyDict
+
+-}
