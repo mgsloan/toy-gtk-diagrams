@@ -3,7 +3,7 @@ Version:             0.3.0
 Cabal-Version:       >= 1.8
 Synopsis:            Utility functions for using diagrams with gtk-toy.
 Category:            Graphics, GUI
-Description: 
+Description:
 License:             BSD3
 License-file:        LICENSE
 Author:              Michael Sloan
@@ -21,14 +21,12 @@ Library
                      data-default,
                      diagrams-lib,
                      diagrams-cairo,
-                     diagrams-core >= 0.6 && < 0.7,
+                     diagrams-core >= 0.6 && < 0.8,
                      diagrams-contrib,
                      diagrams-gtk,
-                     fclabels,
                      gtk,
+                     lens >= 3.9 && < 3.10,
                      MemoTrie,
-                     newtype,
-                     newtype-th >= 0.3,
                      toy-interface >= 0.3 && < 0.4,
                      toy-gtk       >= 0.3 && < 0.4,
                      toy-diagrams  >= 0.3 && < 0.4,

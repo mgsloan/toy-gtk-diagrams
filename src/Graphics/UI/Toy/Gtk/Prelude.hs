@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.UI.Toy.Gtk.Prelude
--- Copyright   :  (c) 2012 Michael Sloan 
+-- Copyright   :  (c) 2012 Michael Sloan
 -- License     :  BSD-style (see the LICENSE file)
 --
 -- Maintainer  :  Michael Sloan <mgsloan@gmail.com>
@@ -24,7 +24,7 @@ module Graphics.UI.Toy.Gtk.Prelude
   , module Graphics.UI.Toy.Diagrams
   , module Graphics.UI.Toy.Dict
   , module Graphics.UI.Toy.Draggable
-  , module Graphics.UI.Toy.Slider
+--   , module Graphics.UI.Toy.Slider
   , module Graphics.UI.Toy.Transformed
   , Cairo
   ) where
@@ -38,5 +38,5 @@ import Graphics.UI.Toy.Button
 import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Dict
 import Graphics.UI.Toy.Draggable
-import Graphics.UI.Toy.Slider
+-- import Graphics.UI.Toy.Slider
 import Graphics.UI.Toy.Transformed
