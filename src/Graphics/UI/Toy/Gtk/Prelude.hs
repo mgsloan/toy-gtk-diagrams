@@ -20,6 +20,7 @@ module Graphics.UI.Toy.Gtk.Prelude
   , module Graphics.UI.Toy.Gtk
   , module Graphics.UI.Toy.Gtk.Diagrams
   , module Graphics.UI.Toy.Gtk.Dict
+  , module Graphics.UI.Toy.Gtk.Text
   , module Graphics.UI.Toy.Button
   , module Graphics.UI.Toy.Diagrams
   , module Graphics.UI.Toy.Dict
@@ -34,6 +35,7 @@ import Diagrams.Prelude
 import Graphics.UI.Toy.Gtk
 import Graphics.UI.Toy.Gtk.Diagrams
 import Graphics.UI.Toy.Gtk.Dict
+import Graphics.UI.Toy.Gtk.Text
 import Graphics.UI.Toy.Button
 import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Dict

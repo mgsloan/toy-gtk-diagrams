@@ -38,3 +38,4 @@ Library
     Graphics.UI.Toy.Gtk.Diagrams
     Graphics.UI.Toy.Gtk.Dict
     Graphics.UI.Toy.Gtk.Prelude
+    Graphics.UI.Toy.Gtk.Text
