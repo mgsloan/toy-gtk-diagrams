@@ -7,7 +7,7 @@
   , TypeFamilies
   , TypeSynonymInstances
   #-}
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.UI.Toy.Gtk.Diagrams
 -- Copyright   :  (c) 2013 Michael Sloan
@@ -17,9 +17,9 @@
 -- Stability   :  experimental
 -- Portability :  GHC only
 --
--- Gtk-specific toy-diagrams utilities.
+-- toy-diagrams utilities specific to the toy-gtk backend.
 --
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 module Graphics.UI.Toy.Gtk.Diagrams
   (
   -- * Convenient Type Synonyms

@@ -1,3 +1,4 @@
+-----------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.UI.Toy.Gtk.Text
 -- Copyright   :  (c) 2013 Michael Sloan
@@ -7,7 +8,9 @@
 -- Stability   :  experimental
 -- Portability :  GHC only
 --
--- Text utilities.
+-- Utilities for drawing text.
+--
+-----------------------------------------------------------------------------
 module Graphics.UI.Toy.Gtk.Text
   ( preText
   ) where
@@ -17,5 +20,6 @@ import Diagrams.Prelude
 import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Gtk.Diagrams
 
+-- | Use cairo to render bounded monospace text, handling newlines properly.
 preText :: String -> CairoDiagram
 preText = vcat . map (textLineBounded monoStyle) . lines

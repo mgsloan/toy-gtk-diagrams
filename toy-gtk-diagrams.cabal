@@ -1,8 +1,8 @@
 Name:                toy-gtk-diagrams
 Version:             0.3.0
 Cabal-Version:       >= 1.8
-Synopsis:            Utility functions for using diagrams with gtk-toy.
-Category:            Graphics, GUI
+Synopsis:            Utility functions for using diagrams with toy-gtk
+Category:            Graphics
 Description:
 License:             BSD3
 License-file:        LICENSE

@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, UndecidableInstances, ConstraintKinds #-}
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.UI.Toy.Gtk.Dict
 -- Copyright   :  (c) 2013 Michael Sloan
@@ -13,7 +13,7 @@
 --
 -- See "Graphics.UI.Toy.Dict" for more information.
 --
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 module Graphics.UI.Toy.Gtk.Dict where
 
 import Data.Traversable       ( Traversable )
