@@ -7,6 +7,7 @@
   , TypeFamilies
   , TypeSynonymInstances
   #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 --------------------------------------------------------------------------------
 -- |
 -- Module      :  Graphics.UI.Toy.Gtk.Diagrams
@@ -23,17 +24,18 @@
 module Graphics.UI.Toy.Gtk.Diagrams
   (
   -- * Convenient Type Synonyms
-    CairoDiagram, CairoDiagrammable
+    CairoDiagram, CairoDiagrammable, CairoInteractive
   , CairoButton
   , CairoDraggable, CairoHandle
 --  , CairoSlider
   -- * Displaying diagrams
   , defaultDisplay
   , displayDiagram
+  -- * Widgets
+  , mkDefaultButton
   ) where
 
 import Control.Lens         hiding ( transform, (#) )
-import Data.AffineSpace.Point      ( Point(..) )
 import Diagrams.Backend.Cairo      ( Cairo )
 import Diagrams.Backend.Cairo.Text ( textLineBounded )
 import Diagrams.Backend.Gtk        ( renderToGtk )
@@ -41,18 +43,16 @@ import Diagrams.Prelude
 import Diagrams.Lens
 
 import Graphics.UI.Gtk             ( DrawWindow )
-import Graphics.UI.Toy.Gtk         ( Gtk, GtkDisplay(..), InputState )
+import Graphics.UI.Toy.Gtk         ( Gtk )
 import Graphics.UI.Toy
-import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Button
 import Graphics.UI.Toy.Diagrams
 import Graphics.UI.Toy.Draggable
 -- import Graphics.UI.Toy.Slider
-import Graphics.UI.Toy.Transformed
-
 
 type CairoDiagram = Diagram Cairo R2
 type CairoDiagrammable q a = Diagrammable Cairo R2 q a
+type CairoInteractive a = (Diagrammable Cairo R2 Any a, Interactive Gtk a)
 
 type CairoButton = Button Cairo R2
 type CairoDraggable a = Draggable a
